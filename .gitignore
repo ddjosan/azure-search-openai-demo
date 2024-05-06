@@ -148,3 +148,5 @@ static/
 
 data/**/*.md5
 /data
+
+.DS_Store

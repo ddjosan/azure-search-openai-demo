@@ -10,6 +10,7 @@ You should typically enable these features before running `azd up`. Once you've 
 * [Enabling Integrated Vectorization](#enabling-integrated-vectorization)
 * [Enabling authentication](#enabling-authentication)
 * [Enabling login and document level access control](#enabling-login-and-document-level-access-control)
+* [Enabling user document upload](#enabling-user-document-upload)
 * [Enabling CORS for an alternate frontend](#enabling-cors-for-an-alternate-frontend)
 * [Using local parsers](#using-local-parsers)
 
@@ -98,7 +99,7 @@ If you have already deployed:
 
 ## Enabling GPT-4 Turbo with Vision
 
-This section covers the integration of GPT-4 Vision with Azure AI Search. Learn how to enhance your search capabilities with the power of image and text indexing, enabling advanced search functionalities over diverse document types. For a detailed guide on setup and usage, visit our [Enabling GPT-4 Turbo with Vision](docs/gpt4v.md) page.
+This section covers the integration of GPT-4 Vision with Azure AI Search. Learn how to enhance your search capabilities with the power of image and text indexing, enabling advanced search functionalities over diverse document types. For a detailed guide on setup and usage, visit our [Enabling GPT-4 Turbo with Vision](gpt4v.md) page.
 
 ## Enabling Integrated Vectorization
 
@@ -125,6 +126,32 @@ To then limit access to a specific set of users or groups, you can follow the st
 
 By default, the deployed Azure web app allows users to chat with all your indexed data. You can enable an optional login system using Azure Active Directory to restrict access to indexed data based on the logged in user. Enable the optional login and document level access control system by following [this guide](./login_and_acl.md).
 
+## Enabling user document upload
+
+You can enable an optional user document upload system to allow users to upload their own documents and chat with them. This feature requires you to first [enable login and document level access control](docs/login_and_acl.md). Then you can enable the optional user document upload system by setting an azd environment variable:
+
+`azd env set USE_USER_UPLOAD true`
+
+Then you'll need to run `azd up` to provision an Azure Data Lake Storage Gen2 account for storing the user-uploaded documents.
+When the user uploads a document, it will be stored in a directory in that account with the same name as the user's Entra object id,
+and will have ACLs associated with that directory. When the ingester runs, it will also set the `oids` of the indexed chunks to the user's Entra object id.
+
+If you are enabling this feature on an existing index, you should also update your index to have the new `storageUrl` field:
+
+```shell
+./scripts/manageacl.ps1  -v --acl-action enable_acls
+```
+
+And then update existing search documents with the storage URL of the main Blob container:
+
+```shell
+./scripts/manageacl.ps1  -v --acl-action update_storage_urls --url <https://YOUR-MAIN-STORAGE-ACCOUNT.blob.core.windows.net/content/>
+```
+
+Going forward, all uploaded documents will have their `storageUrl` set in the search index.
+This is necessary to disambiguate user-uploaded documents from admin-uploaded documents.
+
+
 ## Enabling CORS for an alternate frontend
 
 By default, the deployed Azure web app will only allow requests from the same origin.  To enable CORS for a frontend hosted on a different origin, run:
@@ -145,3 +172,5 @@ If you want to decrease the charges by using local parsers instead of Azure Docu
 
 1. Run `azd env set USE_LOCAL_PDF_PARSER true` to use the local PDF parser.
 1. Run `azd env set USE_LOCAL_HTML_PARSER true` to use the local HTML parser.
+
+The local parsers will be used the next time you run the data ingestion script. To use these parsers for the user document upload system, you'll need to run `azd provision` to update the web app to use the local parsers.
