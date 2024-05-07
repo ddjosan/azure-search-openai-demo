@@ -68,8 +68,8 @@ if ($env:USE_FEATURE_INT_VECTORIZATION) {
 }
 
 $cwd = (Get-Location)
-$dataArg = "`"$cwd/data/prodoc/*`""
-$categoryArg = "--category prodoc"
+$dataArg = "`"$cwd/data/progress/*`""
+$categoryArg = "--category progress"
 
 $argumentList = "./scripts/prepdocs.py $dataArg --verbose " + `
 "--subscriptionid $env:AZURE_SUBSCRIPTION_ID " + `
