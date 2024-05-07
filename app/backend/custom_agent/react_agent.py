@@ -31,7 +31,11 @@ except KeyError:
     azure_search_key = ""
     raise
 
-llm = AzureChatOpenAI(deployment_name=azure_openai_deployment_name)
+llm = AzureChatOpenAI(deployment_name=azure_openai_deployment_name, 
+                      openai_api_version=azure_openai_api_version,
+                      azure_endpoint=azure_openai_endpoint,
+                      openai_api_key=azure_openai_api_key)
+
 retriever = AzureAISearchRetriever(content_key="content",
                                    service_name=azure_search_service,
                                    index_name=azure_search_index,
