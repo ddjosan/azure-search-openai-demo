@@ -1,9 +1,9 @@
 ./scripts/loadenv.ps1
 
-$venvPythonPath = "./scripts/.venv/scripts/python.exe"
+$venvPythonPath = "./.venv/scripts/python.exe"
 if (Test-Path -Path "/usr") {
   # fallback to Linux venv path
-  $venvPythonPath = "./scripts/.venv/bin/python"
+  $venvPythonPath = "./.venv/bin/python"
 }
 
 Write-Host 'Running "prepdocs.py"'
@@ -13,7 +13,7 @@ if ($env:AZURE_ADLS_GEN2_STORAGE_ACCOUNT) {
   $adlsGen2StorageAccountArg = "--datalakestorageaccount $env:AZURE_ADLS_GEN2_STORAGE_ACCOUNT"
   $adlsGen2FilesystemPathArg = ""
   if ($env:AZURE_ADLS_GEN2_FILESYSTEM_PATH) {
-    $adlsGen2FilesystemPathArg = "--datalakefilesystempath $env:AZURE_ADLS_GEN2_FILESYSTEM_PATH"
+    $adlsGen2FilesystemPathArg = "--datalakepath $env:AZURE_ADLS_GEN2_FILESYSTEM_PATH"
   }
   $adlsGen2FilesystemArg = ""
   if ($env:AZURE_ADLS_GEN2_FILESYSTEM) {
@@ -71,7 +71,7 @@ $cwd = (Get-Location)
 $dataArg = "`"$cwd/data/prodoc/*`""
 $categoryArg = "--category prodoc"
 
-$argumentList = "./scripts/prepdocs.py $dataArg --verbose " + `
+$argumentList = "./app/backend/prepdocs.py $dataArg --verbose " + `
 "--subscriptionid $env:AZURE_SUBSCRIPTION_ID " + `
 "--storageaccount $env:AZURE_STORAGE_ACCOUNT --container $env:AZURE_STORAGE_CONTAINER --storageresourcegroup $env:AZURE_STORAGE_RESOURCE_GROUP " + `
 "--searchservice $env:AZURE_SEARCH_SERVICE --index $env:AZURE_SEARCH_INDEX " + `
