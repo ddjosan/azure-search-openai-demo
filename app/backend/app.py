@@ -57,6 +57,8 @@ from config import (
 from core.authentication import AuthenticationHelper
 from decorators import authenticated, authenticated_path
 from error import error_dict, error_response
+from langchain_core.messages import AIMessage, HumanMessage
+from custom_agent.react_agent import react_agent
 
 bp = Blueprint("routes", __name__, static_folder="static")
 # Fix Windows registry issue with mimetypes
@@ -158,6 +160,39 @@ async def format_as_ndjson(r: AsyncGenerator[dict, None]) -> AsyncGenerator[str,
         yield json.dumps(error_dict(error))
 
 
+# @bp.route("/chat", methods=["POST"])
+# @authenticated
+# async def chat(auth_claims: Dict[str, Any]):
+#     if not request.is_json:
+#         return jsonify({"error": "request must be json"}), 415
+#     request_json = await request.get_json()
+#     context = request_json.get("context", {})
+#     context["auth_claims"] = auth_claims
+#     try:
+#         use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
+#         approach: Approach
+#         if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:
+#             approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
+#         else:
+#             approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
+#
+#         result = await approach.run(
+#             request_json["messages"],
+#             stream=request_json.get("stream", False),
+#             context=context,
+#             session_state=request_json.get("session_state"),
+#         )
+#         if isinstance(result, dict):
+#             return jsonify(result)
+#         else:
+#             response = await make_response(format_as_ndjson(result))
+#             response.timeout = None  # type: ignore
+#             response.mimetype = "application/json-lines"
+#             return response
+#     except Exception as error:
+#         return error_response(error, "/chat")
+
+
 @bp.route("/chat", methods=["POST"])
 @authenticated
 async def chat(auth_claims: Dict[str, Any]):
@@ -166,29 +201,18 @@ async def chat(auth_claims: Dict[str, Any]):
     request_json = await request.get_json()
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
-    try:
-        use_gpt4v = context.get("overrides", {}).get("use_gpt4v", False)
-        approach: Approach
-        if use_gpt4v and CONFIG_CHAT_VISION_APPROACH in current_app.config:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_VISION_APPROACH])
-        else:
-            approach = cast(Approach, current_app.config[CONFIG_CHAT_APPROACH])
 
-        result = await approach.run(
-            request_json["messages"],
-            stream=request_json.get("stream", False),
-            context=context,
-            session_state=request_json.get("session_state"),
-        )
-        if isinstance(result, dict):
-            return jsonify(result)
+    history = []
+    raw_history = request_json.get("messages", [])
+    for message in raw_history[:-1]:
+        if message["who"] == "user":
+            history.extend([HumanMessage(content=message["content"])])
         else:
-            response = await make_response(format_as_ndjson(result))
-            response.timeout = None  # type: ignore
-            response.mimetype = "application/json-lines"
-            return response
-    except Exception as error:
-        return error_response(error, "/chat")
+            history.extend([AIMessage(content=message["content"])])
+
+    response = react_agent(request_json["messages"][-1]["content"], history)
+
+    return jsonify(response)
 
 
 # Send MSAL.js settings to the client UI
