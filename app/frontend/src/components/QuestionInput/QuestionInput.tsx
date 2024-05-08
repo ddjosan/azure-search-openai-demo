@@ -63,8 +63,8 @@ export const QuestionInput = ({ onSend, disabled, placeholder, clearOnSend, init
                 className={styles.questionInputTextArea}
                 disabled={disableRequiredAccessControl}
                 placeholder={placeholder}
-                multiline
                 resizable={false}
+                multiline
                 borderless
                 value={question}
                 onChange={onQuestionChange}

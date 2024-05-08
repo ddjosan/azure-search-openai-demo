@@ -18,7 +18,7 @@ import {
 } from "../../api";
 import { Answer, AnswerError, AnswerLoading } from "../../components/Answer";
 import { QuestionInput } from "../../components/QuestionInput";
-import { ExampleList } from "../../components/Example";
+import { ExampleList } from "../../components/ExampleCustom";
 import { UserChatMessage } from "../../components/UserChatMessage";
 import { AnalysisPanel, AnalysisPanelTabs } from "../../components/AnalysisPanel";
 import { SettingsButton } from "../../components/SettingsButton";
@@ -291,9 +291,8 @@ const Chat = () => {
                 <div className={styles.chatContainer}>
                     {!lastQuestionRef.current ? (
                         <div className={styles.chatEmptyState}>
-                            <SparkleFilled fontSize={"120px"} primaryFill={"rgba(115, 118, 225, 1)"} aria-hidden="true" aria-label="Chat logo" />
-                            <h1 className={styles.chatEmptyStateTitle}>Chat with your data</h1>
-                            <h2 className={styles.chatEmptyStateSubtitle}>Ask anything or try an example</h2>
+                            <h1 className={styles.chatEmptyStateTitle}>Chat with our data</h1>
+                            <div className={styles.chatEmptyStateSubtitle}>Ask anything or try an example</div>
                             <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
                         </div>
                     ) : (
@@ -359,7 +358,7 @@ const Chat = () => {
                     <div className={styles.chatInput}>
                         <QuestionInput
                             clearOnSend
-                            placeholder="Type a new question (e.g. does my plan cover annual eye exams?)"
+                            placeholder="Type a new question here"
                             disabled={isLoading}
                             onSend={question => makeApiRequest(question)}
                         />
