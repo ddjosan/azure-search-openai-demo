@@ -70,7 +70,7 @@ fi
 
 categoryArg="--category progress"
 
-./scripts/.venv/bin/python ./scripts/prepdocs.py './data/progress/*' --verbose \
+./.venv/bin/python ./app/backend/prepdocs.py './data/progress/*' --verbose \
 --subscriptionid $AZURE_SUBSCRIPTION_ID  \
 --storageaccount "$AZURE_STORAGE_ACCOUNT" --container "$AZURE_STORAGE_CONTAINER" --storageresourcegroup $AZURE_STORAGE_RESOURCE_GROUP \
 --searchservice "$AZURE_SEARCH_SERVICE" --index "$AZURE_SEARCH_INDEX" \
