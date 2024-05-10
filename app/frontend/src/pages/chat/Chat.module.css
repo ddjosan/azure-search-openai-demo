@@ -29,14 +29,14 @@
 }
 
 .chatEmptyStateTitle {
-    font-size: 4rem;
     font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 30px;
+    margin-top: 32px;
+    margin-bottom: 10px;
 }
 
 .chatEmptyStateSubtitle {
-    font-weight: 600;
+    color: #718096;
+    font-size: 16px;
     margin-bottom: 10px;
 }
 
@@ -65,13 +65,12 @@
 
 .chatMessageGpt {
     margin-bottom: 20px;
-    max-width: 80%;
+    width: 100%;
     display: flex;
     min-width: 500px;
 }
 
 .chatMessageGptMinWidth {
-    max-width: 500px;
     margin-bottom: 20px;
 }
 
@@ -85,7 +84,7 @@
     padding-right: 24px;
     width: 100%;
     max-width: 1028px;
-    background: #f2f2f2;
+    background: white;
 }
 
 .chatAnalysisPanel {
@@ -109,9 +108,14 @@
 .commandsContainer {
     display: flex;
     align-self: flex-end;
+    margin-right: 20px;
+    padding: 4px;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 20px;
+    margin-bottom: 20px;
 }
 
 .commandButton {
-    margin-right: 20px;
-    margin-bottom: 20px;
+    margin-right: 4px;
+    margin-left: 4px;
 }
