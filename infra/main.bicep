@@ -39,6 +39,10 @@ param storageSkuName string // Set in main.parameters.json
 param userStorageAccountName string = ''
 param userStorageContainerName string = 'user-content'
 
+param azureSearchKey string
+param azureOpenAiApiKey string
+param azureOpenAiEndpoint string
+
 param appServiceSkuName string // Set in main.parameters.json
 
 @allowed([ 'azure', 'openai', 'azure_custom' ])
@@ -264,6 +268,7 @@ module backend 'core/host/appservice.bicep' = {
       AZURE_SEARCH_SEMANTIC_RANKER: actualSearchServiceSemanticRankerLevel
       AZURE_VISION_ENDPOINT: useGPT4V ? computerVision.outputs.endpoint : ''
       AZURE_SEARCH_SECRET_NAME: useSearchServiceKey ? searchServiceSecretName : ''
+      AZURE_SEARCH_KEY: azureSearchKey
       AZURE_KEY_VAULT_NAME: useKeyVault ? keyVault.outputs.name : ''
       AZURE_SEARCH_QUERY_LANGUAGE: searchQueryLanguage
       AZURE_SEARCH_QUERY_SPELLER: searchQuerySpeller
@@ -276,6 +281,8 @@ module backend 'core/host/appservice.bicep' = {
       AZURE_OPENAI_EMB_DIMENSIONS: embedding.dimensions
       AZURE_OPENAI_CHATGPT_MODEL: chatGpt.modelName
       AZURE_OPENAI_GPT4V_MODEL: gpt4vModelName
+      AZURE_OPENAI_API_KEY: azureOpenAiApiKey
+      AZURE_OPENAI_ENDPOINT: azureOpenAiEndpoint
       // Specific to Azure OpenAI
       AZURE_OPENAI_SERVICE: isAzureOpenAiHost ? openAi.outputs.name : ''
       AZURE_OPENAI_CHATGPT_DEPLOYMENT: chatGpt.deploymentName

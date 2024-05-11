@@ -128,6 +128,12 @@
     "openAiApiKey": {
       "value": "${OPENAI_API_KEY}"
     },
+    "azureOpenAiApiKey": {
+      "value": "${AZURE_OPENAI_API_KEY}"
+    },
+    "azureOpenAiEndpoint": {
+      "value": "${AZURE_OPENAI_ENDPOINT}"
+    },
     "openAiApiOrganization": {
       "value": "${OPENAI_ORGANIZATION}"
     },
@@ -193,6 +199,9 @@
     },
     "runningOnAdo": {
       "value": "${TF_BUILD}"
+    },
+    "azureSearchKey": {
+      "value": "${AZURE_SEARCH_KEY}"
     }
   }
 }
