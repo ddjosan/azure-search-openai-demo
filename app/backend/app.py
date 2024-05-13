@@ -229,18 +229,21 @@ async def chat(auth_claims: Dict[str, Any]):
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
 
-    history = []
-    raw_history = request_json.get("messages", [])
-    for message in raw_history[:-1]:
-        if message["who"] == "user":
-            history.extend([HumanMessage(content=message["content"])])
-        else:
-            history.extend([AIMessage(content=message["content"])])
+    try:
+        history = []
+        raw_history = request_json.get("messages", [])
 
-    response = react_agent(request_json["messages"][-1]["content"], history)
+        for message in raw_history[:-1]:
+            if message["role"] == "user":
+                history.extend([HumanMessage(content=message["content"])])
+            else:
+                history.extend([AIMessage(content=message["content"])])
 
-    return jsonify(response)
+        response = react_agent(request_json["messages"][-1]["content"], history)
 
+        return jsonify({"message" : response})
+    except Exception as error:
+        return error_response(error, "/chat")
 
 # Send MSAL.js settings to the client UI
 @bp.route("/auth_setup", methods=["GET"])
