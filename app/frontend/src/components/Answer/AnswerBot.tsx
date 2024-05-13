@@ -4,12 +4,12 @@ import DOMPurify from "dompurify";
 
 import styles from "./Answer.module.css";
 
-import { ChatAppResponse, getCitationFilePath } from "../../api";
+import { BotAppResponse, getCitationFilePath } from "../../api";
 import { parseAnswerToHtml } from "./AnswerParser";
 import { AnswerIcon } from "./AnswerIcon";
 
 interface Props {
-    answer: ChatAppResponse;
+    answer: BotAppResponse;
     isSelected?: boolean;
     isStreaming: boolean;
     onCitationClicked: (filePath: string) => void;
@@ -19,7 +19,7 @@ interface Props {
     showFollowupQuestions?: boolean;
 }
 
-export const Answer = ({
+export const AnswerBot = ({
     answer,
     isSelected,
     isStreaming,
@@ -30,8 +30,8 @@ export const Answer = ({
     showFollowupQuestions
 }: Props) => {
     console.log("Answer", answer);
-    const followupQuestions =  answer.choices[0].context.followup_questions;
-    const messageContent = answer.choices[0].message.content;
+    // const followupQuestions =  answer.choices[0].context.followup_questions;
+    const messageContent = answer.message;
     const parsedAnswer = useMemo(() => parseAnswerToHtml(messageContent, isStreaming, onCitationClicked), [answer]);
 
     const sanitizedAnswerHtml = DOMPurify.sanitize(parsedAnswer.answerHtml);
@@ -75,21 +75,6 @@ export const Answer = ({
                             return (
                                 <a key={i} className={styles.citation} title={x} onClick={() => onCitationClicked(path)}>
                                     {`${++i}. ${x}`}
-                                </a>
-                            );
-                        })}
-                    </Stack>
-                </Stack.Item>
-            )}
-
-            {!!followupQuestions?.length && showFollowupQuestions && onFollowupQuestionClicked && (
-                <Stack.Item>
-                    <Stack horizontal wrap className={`${!!parsedAnswer.citations.length ? styles.followupQuestionsList : ""}`} tokens={{ childrenGap: 6 }}>
-                        <span className={styles.followupQuestionLearnMore}>Follow-up questions:</span>
-                        {followupQuestions.map((x, i) => {
-                            return (
-                                <a key={i} className={styles.followupQuestion} title={x} onClick={() => onFollowupQuestionClicked(x)}>
-                                    {`${x}`}
                                 </a>
                             );
                         })}

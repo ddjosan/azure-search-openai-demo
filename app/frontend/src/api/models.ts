@@ -80,6 +80,10 @@ export type ChatAppRequest = {
     session_state: any;
 };
 
+export type BotAppResponse = {
+    message: string;
+}
+
 export type Config = {
     showGPT4VOptions: boolean;
     showSemanticRankerOption: boolean;
