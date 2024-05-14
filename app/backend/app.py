@@ -115,6 +115,9 @@ async def content_file(path: str, auth_claims: Dict[str, Any]):
     """
     # Remove page number from path, filename-1.txt -> filename.txt
     # This shouldn't typically be necessary as browsers don't send hash fragments to servers
+
+    print("received request for citation read")
+
     if path.find("#page=") > 0:
         path_parts = path.rsplit("#page=", 1)
         path = path_parts[0]
@@ -241,7 +244,14 @@ async def chat(auth_claims: Dict[str, Any]):
 
         response = react_agent(request_json["messages"][-1]["content"], history)
 
-        return jsonify({"message" : response})
+        split_response = response.split("Final Answer:")
+
+        if len(split_response) > 1:
+            final_answer = split_response[1].strip()
+        else:
+            final_answer = response
+
+        return jsonify({"message" : final_answer})
     except Exception as error:
         return error_response(error, "/chat")
 
