@@ -3,6 +3,9 @@ import { Checkbox, Panel, DefaultButton, TextField, SpinButton, Slider } from "@
 import { SparkleFilled } from "@fluentui/react-icons";
 import readNDJSONStream from "ndjson-readablestream";
 
+import { getHeaders } from "../../api";
+
+
 import styles from "./Chat.module.css";
 
 import {
@@ -258,12 +261,48 @@ const Chat = () => {
         makeApiRequest(example);
     };
 
+    const fetchCitation = async (activeCitation: string) => {
+        const token = client ? await getToken(client) : undefined;
+        if (activeCitation) {
+            console.log("")
+            // Get hash from the URL as it may contain #page=N
+            // which helps browser PDF renderer jump to correct page N
+            const originalHash = activeCitation.indexOf("#") ? activeCitation.split("#")[1] : "";
+            const response = await fetch(activeCitation, {
+                method: "GET",
+                headers: getHeaders(token)
+            });
+
+            const citationContent = await response.blob();
+    
+            const blobURL = window.URL.createObjectURL(citationContent);
+            const tempLink = document.createElement('a');
+            tempLink.style.display = 'none';
+            tempLink.href = blobURL;
+            tempLink.setAttribute('download', activeCitation);
+            // Safari thinks _blank anchor are pop ups. We only want to set _blank
+            // target if the browser does not support the HTML5 download attribute.
+            // This allows you to download files in desktop safari if pop up blocking
+            // is enabled.
+            if (typeof tempLink.download === 'undefined') {
+                tempLink.setAttribute('target', '_blank');
+            }
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+        }
+    };   
+
     const onShowCitation = (citation: string, index: number) => {
+        console.log("Clicked citation", citation, activeAnalysisPanelTab, selectedAnswer);
         if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab && selectedAnswer === index) {
+            console.log("here 1");
             setActiveAnalysisPanelTab(undefined);
         } else {
-            setActiveCitation(citation);
-            setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
+            console.log("here 2")
+            //setActiveCitation(citation);
+            //setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
+            fetchCitation(citation)
         }
 
         setSelectedAnswer(index);
