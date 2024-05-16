@@ -3,6 +3,9 @@ import { Checkbox, Panel, DefaultButton, TextField, SpinButton, Slider } from "@
 import { SparkleFilled } from "@fluentui/react-icons";
 import readNDJSONStream from "ndjson-readablestream";
 
+import { getHeaders } from "../../api";
+
+
 import styles from "./Chat.module.css";
 
 import {
@@ -12,11 +15,12 @@ import {
     ChatAppResponse,
     ChatAppResponseOrError,
     ChatAppRequest,
+    BotAppResponse,
     ResponseMessage,
     VectorFieldOptions,
     GPT4VInput
 } from "../../api";
-import { Answer, AnswerError, AnswerLoading } from "../../components/Answer";
+import { Answer, AnswerBot, AnswerError, AnswerLoading } from "../../components/Answer";
 import { QuestionInput } from "../../components/QuestionInput";
 import { ExampleList } from "../../components/Example";
 import { UserChatMessage } from "../../components/UserChatMessage";
@@ -60,8 +64,8 @@ const Chat = () => {
     const [activeAnalysisPanelTab, setActiveAnalysisPanelTab] = useState<AnalysisPanelTabs | undefined>(undefined);
 
     const [selectedAnswer, setSelectedAnswer] = useState<number>(0);
-    const [answers, setAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
-    const [streamedAnswers, setStreamedAnswers] = useState<[user: string, response: ChatAppResponse][]>([]);
+    const [answers, setAnswers] = useState<[user: string, response: BotAppResponse][]>([]);
+    const [streamedAnswers, setStreamedAnswers] = useState<[user: string, response: BotAppResponse][]>([]);
     const [showGPT4VOptions, setShowGPT4VOptions] = useState<boolean>(false);
     const [showSemanticRankerOption, setShowSemanticRankerOption] = useState<boolean>(false);
     const [showVectorOption, setShowVectorOption] = useState<boolean>(false);
@@ -80,48 +84,48 @@ const Chat = () => {
         });
     };
 
-    const handleAsyncRequest = async (question: string, answers: [string, ChatAppResponse][], setAnswers: Function, responseBody: ReadableStream<any>) => {
-        let answer: string = "";
-        let askResponse: ChatAppResponse = {} as ChatAppResponse;
+    // const handleAsyncRequest = async (question: string, answers: [string, BotAppResponse][], setAnswers: Function, responseBody: ReadableStream<any>) => {
+    //     let answer: string = "";
+    //     let askResponse: ChatAppResponse = {} as ChatAppResponse;
 
-        const updateState = (newContent: string) => {
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    answer += newContent;
-                    const latestResponse: ChatAppResponse = {
-                        ...askResponse,
-                        choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
-                    };
-                    setStreamedAnswers([...answers, [question, latestResponse]]);
-                    resolve(null);
-                }, 33);
-            });
-        };
-        try {
-            setIsStreaming(true);
-            for await (const event of readNDJSONStream(responseBody)) {
-                if (event["choices"] && event["choices"][0]["context"] && event["choices"][0]["context"]["data_points"]) {
-                    event["choices"][0]["message"] = event["choices"][0]["delta"];
-                    askResponse = event as ChatAppResponse;
-                } else if (event["choices"] && event["choices"][0]["delta"]["content"]) {
-                    setIsLoading(false);
-                    await updateState(event["choices"][0]["delta"]["content"]);
-                } else if (event["choices"] && event["choices"][0]["context"]) {
-                    // Update context with new keys from latest event
-                    askResponse.choices[0].context = { ...askResponse.choices[0].context, ...event["choices"][0]["context"] };
-                } else if (event["error"]) {
-                    throw Error(event["error"]);
-                }
-            }
-        } finally {
-            setIsStreaming(false);
-        }
-        const fullResponse: ChatAppResponse = {
-            ...askResponse,
-            choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
-        };
-        return fullResponse;
-    };
+    //     const updateState = (newContent: string) => {
+    //         return new Promise(resolve => {
+    //             setTimeout(() => {
+    //                 answer += newContent;
+    //                 const latestResponse: ChatAppResponse = {
+    //                     ...askResponse,
+    //                     choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
+    //                 };
+    //                 setStreamedAnswers([...answers, [question, latestResponse]]);
+    //                 resolve(null);
+    //             }, 33);
+    //         });
+    //     };
+    //     try {
+    //         setIsStreaming(true);
+    //         for await (const event of readNDJSONStream(responseBody)) {
+    //             if (event["choices"] && event["choices"][0]["context"] && event["choices"][0]["context"]["data_points"]) {
+    //                 event["choices"][0]["message"] = event["choices"][0]["delta"];
+    //                 askResponse = event as ChatAppResponse;
+    //             } else if (event["choices"] && event["choices"][0]["delta"]["content"]) {
+    //                 setIsLoading(false);
+    //                 await updateState(event["choices"][0]["delta"]["content"]);
+    //             } else if (event["choices"] && event["choices"][0]["context"]) {
+    //                 // Update context with new keys from latest event
+    //                 askResponse.choices[0].context = { ...askResponse.choices[0].context, ...event["choices"][0]["context"] };
+    //             } else if (event["error"]) {
+    //                 throw Error(event["error"]);
+    //             }
+    //         }
+    //     } finally {
+    //         setIsStreaming(false);
+    //     }
+    //     const fullResponse: ChatAppResponse = {
+    //         ...askResponse,
+    //         choices: [{ ...askResponse.choices[0], message: { content: answer, role: askResponse.choices[0].message.role } }]
+    //     };
+    //     return fullResponse;
+    // };
 
     const client = useLogin ? useMsal().instance : undefined;
 
@@ -138,7 +142,7 @@ const Chat = () => {
         try {
             const messages: ResponseMessage[] = answers.flatMap(a => [
                 { content: a[0], role: "user" },
-                { content: a[1].choices[0].message.content, role: "assistant" }
+                { content: a[1].message, role: "assistant" }
             ]);
 
             const request: ChatAppRequest = {
@@ -164,23 +168,19 @@ const Chat = () => {
                     }
                 },
                 // ChatAppProtocol: Client must pass on any session state received from the server
-                session_state: answers.length ? answers[answers.length - 1][1].choices[0].session_state : null
+                session_state: null
             };
 
             const response = await chatApi(request, token);
             if (!response.body) {
                 throw Error("No response body");
             }
-            if (shouldStream) {
-                const parsedResponse: ChatAppResponse = await handleAsyncRequest(question, answers, setAnswers, response.body);
-                setAnswers([...answers, [question, parsedResponse]]);
-            } else {
-                const parsedResponse: ChatAppResponseOrError = await response.json();
-                if (response.status > 299 || !response.ok) {
-                    throw Error(parsedResponse.error || "Unknown error");
-                }
-                setAnswers([...answers, [question, parsedResponse as ChatAppResponse]]);
+            
+            const parsedResponse: ChatAppResponseOrError = await response.json();
+            if (response.status > 299 || !response.ok) {
+                throw Error(parsedResponse.error || "Unknown error");
             }
+            setAnswers([...answers, [question, parsedResponse as BotAppResponse]]);
         } catch (e) {
             setError(e);
         } finally {
@@ -261,12 +261,48 @@ const Chat = () => {
         makeApiRequest(example);
     };
 
+    const fetchCitation = async (activeCitation: string) => {
+        const token = client ? await getToken(client) : undefined;
+        if (activeCitation) {
+            console.log("")
+            // Get hash from the URL as it may contain #page=N
+            // which helps browser PDF renderer jump to correct page N
+            const originalHash = activeCitation.indexOf("#") ? activeCitation.split("#")[1] : "";
+            const response = await fetch(activeCitation, {
+                method: "GET",
+                headers: getHeaders(token)
+            });
+
+            const citationContent = await response.blob();
+    
+            const blobURL = window.URL.createObjectURL(citationContent);
+            const tempLink = document.createElement('a');
+            tempLink.style.display = 'none';
+            tempLink.href = blobURL;
+            tempLink.setAttribute('download', activeCitation);
+            // Safari thinks _blank anchor are pop ups. We only want to set _blank
+            // target if the browser does not support the HTML5 download attribute.
+            // This allows you to download files in desktop safari if pop up blocking
+            // is enabled.
+            if (typeof tempLink.download === 'undefined') {
+                tempLink.setAttribute('target', '_blank');
+            }
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+        }
+    };   
+
     const onShowCitation = (citation: string, index: number) => {
+        console.log("Clicked citation", citation, activeAnalysisPanelTab, selectedAnswer);
         if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab && selectedAnswer === index) {
+            console.log("here 1");
             setActiveAnalysisPanelTab(undefined);
         } else {
-            setActiveCitation(citation);
-            setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
+            console.log("here 2")
+            //setActiveCitation(citation);
+            //setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
+            fetchCitation(citation)
         }
 
         setSelectedAnswer(index);
@@ -293,38 +329,19 @@ const Chat = () => {
                 <div className={styles.chatContainer}>
                     {!lastQuestionRef.current ? (
                         <div className={styles.chatEmptyState}>
-                            <SparkleFilled fontSize={"120px"} primaryFill={"rgba(115, 118, 225, 1)"} aria-hidden="true" aria-label="Chat logo" />
-                            <h1 className={styles.chatEmptyStateTitle}>Chat with your data</h1>
-                            <h2 className={styles.chatEmptyStateSubtitle}>Ask anything or try an example</h2>
+                            <h1 className={styles.chatEmptyStateTitle}>Chat with our data</h1>
+                            <div className={styles.chatEmptyStateSubtitle}>Ask anything or try an example</div>
                             <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
                         </div>
                     ) : (
                         <div className={styles.chatMessageStream}>
-                            {isStreaming &&
-                                streamedAnswers.map((streamedAnswer, index) => (
-                                    <div key={index}>
-                                        <UserChatMessage message={streamedAnswer[0]} />
-                                        <div className={styles.chatMessageGpt}>
-                                            <Answer
-                                                isStreaming={true}
-                                                key={index}
-                                                answer={streamedAnswer[1]}
-                                                isSelected={false}
-                                                onCitationClicked={c => onShowCitation(c, index)}
-                                                onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
-                                                onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
-                                                onFollowupQuestionClicked={q => makeApiRequest(q)}
-                                                showFollowupQuestions={useSuggestFollowupQuestions && answers.length - 1 === index}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            {!isStreaming &&
+                            
+                            {
                                 answers.map((answer, index) => (
                                     <div key={index}>
                                         <UserChatMessage message={answer[0]} />
                                         <div className={styles.chatMessageGpt}>
-                                            <Answer
+                                            <AnswerBot
                                                 isStreaming={false}
                                                 key={index}
                                                 answer={answer[1]}
@@ -332,7 +349,7 @@ const Chat = () => {
                                                 onCitationClicked={c => onShowCitation(c, index)}
                                                 onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
                                                 onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
-                                                onFollowupQuestionClicked={q => makeApiRequest(q)}
+                                                // onFollowupQuestionClicked={q => makeApiRequest(q)}
                                                 showFollowupQuestions={useSuggestFollowupQuestions && answers.length - 1 === index}
                                             />
                                         </div>
@@ -368,7 +385,7 @@ const Chat = () => {
                     </div>
                 </div>
 
-                {answers.length > 0 && activeAnalysisPanelTab && (
+                {/* {answers.length > 0 && activeAnalysisPanelTab && (
                     <AnalysisPanel
                         className={styles.chatAnalysisPanel}
                         activeCitation={activeCitation}
@@ -377,7 +394,7 @@ const Chat = () => {
                         answer={answers[selectedAnswer][1]}
                         activeTab={activeAnalysisPanelTab}
                     />
-                )}
+                )} */}
 
                 <Panel
                     headerText="Configure answer generation"
