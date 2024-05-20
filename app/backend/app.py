@@ -64,7 +64,7 @@ from core.authentication import AuthenticationHelper
 from decorators import authenticated, authenticated_path
 from error import error_dict, error_response
 from langchain_core.messages import AIMessage, HumanMessage
-from custom_agent.react_agent import react_agent
+from custom_agent.react_agent_new import react_agent
 
 from prepdocs import (
     clean_key_if_exists,
@@ -244,14 +244,7 @@ async def chat(auth_claims: Dict[str, Any]):
 
         response = react_agent(request_json["messages"][-1]["content"], history)
 
-        split_response = response.split("Final Answer:")
-
-        if len(split_response) > 1:
-            final_answer = split_response[1].strip()
-        else:
-            final_answer = response
-
-        return jsonify({"message" : final_answer})
+        return jsonify({"message" : response})
     except Exception as error:
         return error_response(error, "/chat")
 
