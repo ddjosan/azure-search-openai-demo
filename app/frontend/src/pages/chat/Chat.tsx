@@ -6,6 +6,7 @@ import readNDJSONStream from "ndjson-readablestream";
 import { getHeaders } from "../../api";
 
 
+import logo from "../../assets/gpt-image.png"
 import styles from "./Chat.module.css";
 
 import {
@@ -348,7 +349,13 @@ const Chat = () => {
                                     <div key={index}>
                                         <UserChatMessage message={answer[0]} />
                                         <div className={styles.chatMessageGpt}>
-                                            <AnswerBot
+                                            <img
+                                                src={logo}
+                                                alt="Gpt"
+                                                height='45px'
+                                                width='45px'
+                                            />
+                                            <Answer
                                                 isStreaming={false}
                                                 key={index}
                                                 answer={answer[1]}
@@ -366,6 +373,12 @@ const Chat = () => {
                                 <>
                                     <UserChatMessage message={lastQuestionRef.current} />
                                     <div className={styles.chatMessageGptMinWidth}>
+                                        <img
+                                            src={logo}
+                                            alt="Gpt"
+                                            height='45px'
+                                            width='45px'
+                                        />
                                         <AnswerLoading />
                                     </div>
                                 </>
@@ -374,6 +387,12 @@ const Chat = () => {
                                 <>
                                     <UserChatMessage message={lastQuestionRef.current} />
                                     <div className={styles.chatMessageGptMinWidth}>
+                                        <img
+                                            src={logo}
+                                            alt="Gpt"
+                                            height='45px'
+                                            width='45px'
+                                        />
                                         <AnswerError error={error.toString()} onRetry={() => makeApiRequest(lastQuestionRef.current)} />
                                     </div>
                                 </>
