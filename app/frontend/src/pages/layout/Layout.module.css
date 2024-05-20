@@ -5,24 +5,37 @@
 }
 
 .header {
-    background-color: #222222;
-    color: #f2f2f2;
+    background-color: #FFFF;
+    box-shadow: 0px -8px 17.8px 15px #7090B01C;
 }
 
 .headerContainer {
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    margin-right: 12px;
-    margin-left: 12px;
+    justify-content: space-between;
+    margin-right: 32px;
+    margin-left: 32px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.headerLogoWrapper {
+    display: flex;
+    align-items: center;
 }
 
 .headerTitleContainer {
-    display: flex;
     align-items: center;
-    margin-right: 40px;
-    color: #f2f2f2;
+    margin-left: 16px;
     text-decoration: none;
+    font-size: 16px;
+}
+
+.headerDescription {
+    font-size: 12px;
+    margin-top: 0px;
+    padding-left: 16px;
+    color: #00A739;
 }
 
 .headerLogo {

@@ -22,7 +22,7 @@ import {
 } from "../../api";
 import { Answer, AnswerBot, AnswerError, AnswerLoading } from "../../components/Answer";
 import { QuestionInput } from "../../components/QuestionInput";
-import { ExampleList } from "../../components/Example";
+import { ExampleList } from "../../components/ExampleCustom";
 import { UserChatMessage } from "../../components/UserChatMessage";
 import { AnalysisPanel, AnalysisPanelTabs } from "../../components/AnalysisPanel";
 import { SettingsButton } from "../../components/SettingsButton";
@@ -329,8 +329,8 @@ const Chat = () => {
                 <div className={styles.chatContainer}>
                     {!lastQuestionRef.current ? (
                         <div className={styles.chatEmptyState}>
-                            <h1 className={styles.chatEmptyStateTitle}>Chat with our data</h1>
-                            <div className={styles.chatEmptyStateSubtitle}>Ask anything or try an example</div>
+                            <h1 className={styles.chatEmptyStateTitle}>Portfolio GPT</h1>
+                            <div className={styles.chatEmptyStateSubtitle}>Choose your path and let Portfolio GPT be your partner in unlocking the full potential of the UNDP's portfolio approach.</div>
                             <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
                         </div>
                     ) : (
@@ -378,7 +378,7 @@ const Chat = () => {
                     <div className={styles.chatInput}>
                         <QuestionInput
                             clearOnSend
-                            placeholder="Type a new question (e.g.  how does UNDP Serbia contribute to the SDG Agenda?)"
+                            placeholder="Type a new question here..."
                             disabled={isLoading}
                             onSend={question => makeApiRequest(question)}
                         />

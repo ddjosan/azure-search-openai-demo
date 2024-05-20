@@ -12,21 +12,21 @@ interface ExampleC {
 }
 const DEFAULT_EXAMPLES: ExampleC[] = [
     {
-        title:'What we set out to do',
-        text: 'Project documentation outlning our ojbectives and goals.',
-        value: 'List all UNDP Serbia projects related to dealing with climate change.',
+        title:'',
+        text: '',
+        value: 'What is the UNDP Portfolio Approach?',
         icon: example1Img
     },
     {
-        title:'What we have done',
-        text: 'Progress reports tracking our project execution.',
-        value: 'List all activities related to emerging technologies realized in 2023.',
+        title:'',
+        text: '',
+        value: 'Why is the Portfolio Approach important for tackling complex...',
         icon: example2Img
     },
     {
-        title:'Dimensions of impact',
-        text: 'Key result indicators that measure our reach.',
-        value: "How many vulnerable individuals has UNDP Serbia's projects reached in 2023?",
+        title:'',
+        text: '',
+        value: "What are the key steps or phases in developing and managing a....",
         icon: example3Img
     }
 ];
