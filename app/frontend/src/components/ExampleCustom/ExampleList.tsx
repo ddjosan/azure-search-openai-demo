@@ -14,19 +14,19 @@ const DEFAULT_EXAMPLES: ExampleC[] = [
     {
         title:'What we set out to do',
         text: 'Project documentation outlning our ojbectives and goals.',
-        value: 'List all UNDP Serbia projects related to dealing with climate change.',
+        value: 'Go through project documentation and collect all project outputs, then select those that are focused at trainings and capacity builiding, and group them in three meaningful categories.',
         icon: example1Img
     },
     {
         title:'What we have done',
         text: 'Progress reports tracking our project execution.',
-        value: 'List all activities related to emerging technologies realized in 2023.',
+        value: 'Search the progress reports on developed digital products, compare the findings over 2022 to 2023, and speculate on trends.',
         icon: example2Img
     },
     {
         title:'Dimensions of impact',
         text: 'Key result indicators that measure our reach.',
-        value: "How many vulnerable individuals has UNDP Serbia's projects reached in 2023?",
+        value: "Provide a comprehensive overview of all activities and results related to women's empowerment undertaken in 2023, and group these into a set of MECE categories.",
         icon: example3Img
     }
 ];
