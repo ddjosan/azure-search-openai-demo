@@ -19,6 +19,15 @@ DEFAULT_URL_SUFFIX = "search.windows.net"
 
 
 class AzureAISearchRetriever(BaseRetriever):
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exctype, value, tb):
+        if exctype is GeneratorExit:
+            return False
+        return True
+
     """`Azure AI Search` service retriever."""
 
     service_name: str = ""
@@ -71,10 +80,8 @@ class AzureAISearchRetriever(BaseRetriever):
 
         endpoint_path = f"indexes/{self.index_name}/docs?api-version={self.api_version}"
         top_param = f"&$top={self.top_k}" if self.top_k else ""
-        filter_param = f"&$filter=category eq 'progress'"
-        select_param = f"&$select=content,sourcepage,sourcefile"  # Add this line to include the fields
-
-        return base_url + endpoint_path + f"&search={query}" + top_param + filter_param + select_param
+        filter_param = f"&$filter=category eq 'prodoc'"
+        return base_url + endpoint_path + f"&search={query}" + top_param + filter_param
 
     @property
     def _headers(self) -> Dict[str, str]:
@@ -110,26 +117,20 @@ class AzureAISearchRetriever(BaseRetriever):
     ) -> List[Document]:
         search_results = self._search(query)
 
-        documents = []
-        for result in search_results:
-            page_content = result.get(self.content_key, "")  # Use get to avoid KeyError
-            sourcefile = result.get('sourcefile', 'unknown')  # Use get to avoid KeyError
-            full_page_content = f"{page_content} Document Name: [{sourcefile}]"
-            documents.append(Document(page_content=full_page_content, metadata=result))
-        return documents
+        return [
+            Document(page_content=result.pop(self.content_key), metadata=result)
+            for result in search_results
+        ]
 
     async def _aget_relevant_documents(
         self, query: str, *, run_manager: AsyncCallbackManagerForRetrieverRun
     ) -> List[Document]:
         search_results = await self._asearch(query)
 
-        documents = []
-        for result in search_results:
-            page_content = result.get(self.content_key, "")  # Use get to avoid KeyError
-            sourcefile = result.get('sourcefile', 'unknown')  # Use get to avoid KeyError
-            full_page_content = f"{page_content} Document Name: [{sourcefile}]"
-            documents.append(Document(page_content=full_page_content, metadata=result))
-        return documents
+        return [
+            Document(page_content=result.pop(self.content_key), metadata=result)
+            for result in search_results
+        ]
 
 
 # For backwards compatibility
