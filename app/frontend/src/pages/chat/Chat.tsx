@@ -2,10 +2,8 @@ import { useRef, useState, useEffect } from "react";
 import { Checkbox, Panel, DefaultButton, TextField, SpinButton, Slider } from "@fluentui/react";
 import { SparkleFilled } from "@fluentui/react-icons";
 import readNDJSONStream from "ndjson-readablestream";
-
 import { getHeaders } from "../../api";
-
-
+import logo from "../../assets/gpt-image.png";
 import styles from "./Chat.module.css";
 
 import {
@@ -175,7 +173,7 @@ const Chat = () => {
             if (!response.body) {
                 throw Error("No response body");
             }
-            
+
             const parsedResponse: ChatAppResponseOrError = await response.json();
             if (response.status > 299 || !response.ok) {
                 throw Error(parsedResponse.error || "Unknown error");
@@ -264,7 +262,7 @@ const Chat = () => {
     const fetchCitation = async (activeCitation: string) => {
         const token = client ? await getToken(client) : undefined;
         if (activeCitation) {
-            console.log("")
+            console.log("");
             // Get hash from the URL as it may contain #page=N
             // which helps browser PDF renderer jump to correct page N
             const originalHash = activeCitation.indexOf("#") ? activeCitation.split("#")[1] : "";
@@ -274,24 +272,24 @@ const Chat = () => {
             });
 
             const citationContent = await response.blob();
-    
+
             const blobURL = window.URL.createObjectURL(citationContent);
-            const tempLink = document.createElement('a');
-            tempLink.style.display = 'none';
+            const tempLink = document.createElement("a");
+            tempLink.style.display = "none";
             tempLink.href = blobURL;
-            tempLink.setAttribute('download', activeCitation);
+            tempLink.setAttribute("download", activeCitation);
             // Safari thinks _blank anchor are pop ups. We only want to set _blank
             // target if the browser does not support the HTML5 download attribute.
             // This allows you to download files in desktop safari if pop up blocking
             // is enabled.
-            if (typeof tempLink.download === 'undefined') {
-                tempLink.setAttribute('target', '_blank');
+            if (typeof tempLink.download === "undefined") {
+                tempLink.setAttribute("target", "_blank");
             }
             document.body.appendChild(tempLink);
             tempLink.click();
             document.body.removeChild(tempLink);
         }
-    };   
+    };
 
     const onShowCitation = (citation: string, index: number) => {
         console.log("Clicked citation", citation, activeAnalysisPanelTab, selectedAnswer);
@@ -299,10 +297,10 @@ const Chat = () => {
             console.log("here 1");
             setActiveAnalysisPanelTab(undefined);
         } else {
-            console.log("here 2")
+            console.log("here 2");
             //setActiveCitation(citation);
             //setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
-            fetchCitation(citation)
+            fetchCitation(citation);
         }
 
         setSelectedAnswer(index);
@@ -335,30 +333,30 @@ const Chat = () => {
                         </div>
                     ) : (
                         <div className={styles.chatMessageStream}>
-                            
-                            {
-                                answers.map((answer, index) => (
-                                    <div key={index}>
-                                        <UserChatMessage message={answer[0]} />
-                                        <div className={styles.chatMessageGpt}>
-                                            <AnswerBot
-                                                isStreaming={false}
-                                                key={index}
-                                                answer={answer[1]}
-                                                isSelected={selectedAnswer === index && activeAnalysisPanelTab !== undefined}
-                                                onCitationClicked={c => onShowCitation(c, index)}
-                                                onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
-                                                onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
-                                                // onFollowupQuestionClicked={q => makeApiRequest(q)}
-                                                showFollowupQuestions={useSuggestFollowupQuestions && answers.length - 1 === index}
-                                            />
-                                        </div>
+                            {answers.map((answer, index) => (
+                                <div key={index}>
+                                    <UserChatMessage message={answer[0]} />
+                                    <div className={styles.chatMessageGpt}>
+                                        <img src={logo} alt="Gpt" height="45px" width="45px" />
+                                        <AnswerBot
+                                            isStreaming={false}
+                                            key={index}
+                                            answer={answer[1]}
+                                            isSelected={selectedAnswer === index && activeAnalysisPanelTab !== undefined}
+                                            onCitationClicked={c => onShowCitation(c, index)}
+                                            onThoughtProcessClicked={() => onToggleTab(AnalysisPanelTabs.ThoughtProcessTab, index)}
+                                            onSupportingContentClicked={() => onToggleTab(AnalysisPanelTabs.SupportingContentTab, index)}
+                                            // onFollowupQuestionClicked={q => makeApiRequest(q)}
+                                            showFollowupQuestions={useSuggestFollowupQuestions && answers.length - 1 === index}
+                                        />
                                     </div>
-                                ))}
+                                </div>
+                            ))}
                             {isLoading && (
                                 <>
                                     <UserChatMessage message={lastQuestionRef.current} />
                                     <div className={styles.chatMessageGptMinWidth}>
+                                        <img src={logo} alt="Gpt" height="45px" width="45px" />
                                         <AnswerLoading />
                                     </div>
                                 </>
@@ -367,6 +365,7 @@ const Chat = () => {
                                 <>
                                     <UserChatMessage message={lastQuestionRef.current} />
                                     <div className={styles.chatMessageGptMinWidth}>
+                                        <img src={logo} alt="Gpt" height="45px" width="45px" />
                                         <AnswerError error={error.toString()} onRetry={() => makeApiRequest(lastQuestionRef.current)} />
                                     </div>
                                 </>
