@@ -295,15 +295,22 @@ const Chat = () => {
 
     const onShowCitation = (citation: string, index: number) => {
         console.log("Clicked citation", citation, activeAnalysisPanelTab, selectedAnswer);
-        if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab && selectedAnswer === index) {
-            console.log("here 1");
-            setActiveAnalysisPanelTab(undefined);
-        } else {
-            console.log("here 2")
-            //setActiveCitation(citation);
-            //setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
+
+        if (citation.indexOf(".docx") > 0) {
             fetchCitation(citation)
         }
+        else {
+            if (activeCitation === citation && activeAnalysisPanelTab === AnalysisPanelTabs.CitationTab && selectedAnswer === index) {
+                console.log("Here 1");
+                setActiveAnalysisPanelTab(undefined);
+            } else {
+                console.log("Here 2");
+                setActiveCitation(citation);
+                setActiveAnalysisPanelTab(AnalysisPanelTabs.CitationTab);
+                //fetchCitation(citation)
+            }
+
+        } 
 
         setSelectedAnswer(index);
     };
@@ -385,16 +392,15 @@ const Chat = () => {
                     </div>
                 </div>
 
-                {/* {answers.length > 0 && activeAnalysisPanelTab && (
+                {activeAnalysisPanelTab && (
                     <AnalysisPanel
                         className={styles.chatAnalysisPanel}
                         activeCitation={activeCitation}
                         onActiveTabChanged={x => onToggleTab(x, selectedAnswer)}
                         citationHeight="810px"
-                        answer={answers[selectedAnswer][1]}
                         activeTab={activeAnalysisPanelTab}
                     />
-                )} */}
+                )}
 
                 <Panel
                     headerText="Configure answer generation"
