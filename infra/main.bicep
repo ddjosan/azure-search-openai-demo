@@ -361,7 +361,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = if (isAzureOpenAiHost) {
       name: openAiSkuName
     }
     deployments: openAiDeployments
-    disableLocalAuth: true
+    disableLocalAuth: false
   }
 }
 
@@ -433,7 +433,7 @@ module searchService 'core/search/search-services.bicep' = {
     name: !empty(searchServiceName) ? searchServiceName : 'gptkb-${resourceToken}'
     location: !empty(searchServiceLocation) ? searchServiceLocation : location
     tags: tags
-    disableLocalAuth: !useSearchServiceKey
+    disableLocalAuth: false
     sku: {
       name: searchServiceSkuName
     }
@@ -449,7 +449,7 @@ module storage 'core/storage/storage-account.bicep' = {
     location: storageResourceGroupLocation
     tags: tags
     allowBlobPublicAccess: false
-    allowSharedKeyAccess: false
+    allowSharedKeyAccess: true
     publicNetworkAccess: 'Enabled'
     sku: {
       name: storageSkuName
@@ -475,7 +475,7 @@ module userStorage 'core/storage/storage-account.bicep' = if (useUserUpload) {
     location: storageResourceGroupLocation
     tags: tags
     allowBlobPublicAccess: false
-    allowSharedKeyAccess: false
+    allowSharedKeyAccess: true
     publicNetworkAccess: 'Enabled'
     isHnsEnabled: true
     sku: {
