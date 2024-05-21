@@ -14,19 +14,19 @@ const DEFAULT_EXAMPLES: ExampleC[] = [
     {
         title:'',
         text: '',
-        value: 'What is the UNDP Portfolio Approach?',
+        value: 'Help me understand the key principles of the portfolio approach.',
         icon: example1Img
     },
     {
         title:'',
         text: '',
-        value: 'Why is the Portfolio Approach important for tackling complex...',
+        value: 'Guide me through the process of preparing a portfolio policy document.',
         icon: example2Img
     },
     {
         title:'',
         text: '',
-        value: "What are the key steps or phases in developing and managing a....",
+        value: "Analyze my current portfolio and provide recommendations for improvement.",
         icon: example3Img
     }
 ];
