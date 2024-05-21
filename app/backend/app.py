@@ -244,14 +244,7 @@ async def chat(auth_claims: Dict[str, Any]):
 
         response = react_agent(request_json["messages"][-1]["content"], history)
 
-        split_response = response.split("Final Answer:")
-
-        if len(split_response) > 1:
-            final_answer = split_response[1].strip()
-        else:
-            final_answer = response
-
-        return jsonify({"message" : final_answer})
+        return jsonify({"message" : response})
     except Exception as error:
         return error_response(error, "/chat")
 
