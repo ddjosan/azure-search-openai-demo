@@ -1,20 +1,24 @@
-from langchain.pydantic_v1 import BaseModel, Field
-from langchain_openai import AzureChatOpenAI
 import os
-from langchain.agents import tool
+
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import SystemMessagePromptTemplate, PromptTemplate, HumanMessagePromptTemplate
+from langchain_core.messages import AIMessage, HumanMessage, ChatMessage, SystemMessage, FunctionMessage, ToolMessage
+from langchain.pydantic_v1 import BaseModel, Field
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 from langchain.agents import AgentExecutor, load_tools
-from langchain_core.messages import AIMessage, HumanMessage, ChatMessage, SystemMessage, FunctionMessage, ToolMessage
+from retreivers.azure_ai_search_portfolio import AzureAISearchRetriever
+
+from langchain.tools import StructuredTool
 from langchain.tools.retriever import create_retriever_tool
 
-from langchain_community.retrievers.azure_ai_search import AzureAISearchRetriever
-
-from langchain_core.prompts import SystemMessagePromptTemplate, PromptTemplate, HumanMessagePromptTemplate
 import typing
 from typing import Optional
-from langchain.tools import StructuredTool
+
+from langchain import hub
+from langchain.agents import AgentExecutor, create_structured_chat_agent, load_tools, create_react_agent
+from langchain_openai import ChatOpenAI
 
 
 # Parse the environment variables
@@ -27,6 +31,11 @@ try:
     azure_search_service = os.environ['AZURE_SEARCH_SERVICE']
     azure_search_index = os.environ['AZURE_SEARCH_INDEX']
     azure_search_key = os.environ['AZURE_SEARCH_KEY']
+
+    openai_api_key = os.environ['OPENAI_API_KEY']
+    openai_model = os.environ['OPENAI_MODEL']
+    openai_organization = os.environ['OPENAI_ORGANIZATION']
+
 except KeyError:
     azure_openai_api_version = ""
     azure_openai_endpoint = ""
@@ -38,12 +47,12 @@ except KeyError:
     azure_search_key = ""
     raise
 
-llm = AzureChatOpenAI(deployment_name=azure_openai_deployment_name, 
-                      openai_api_version=azure_openai_api_version,
-                      azure_endpoint=azure_openai_endpoint,
-                      openai_api_key=azure_openai_api_key)
-
-
+llm = ChatOpenAI(
+    temperature=0.5,
+    model=openai_model,
+    api_key= openai_api_key,
+    openai_organization=openai_organization
+)
 
 
 # Retriever is the functionality to search and retrieve documents based on an input query
@@ -51,131 +60,73 @@ retriever_portfolio = AzureAISearchRetriever(content_key="content",
                                    service_name=azure_search_service, 
                                    index_name=azure_search_index, 
                                    api_key=azure_search_key,
-                                   top_k=15)
-
-# Tool name and tool description are what the AGENT is going to see. 
-# Based on this information the agent knows which tools to use for a given query
-tool_name_portfolio = "search_undp_portfolio_approach"
-tool_description_prortfolio = "Searches and returns excerpts from UNDP Innovation team portfolio approach document. Consult this database when interested in portfolio approach."
-
-# Create a retriever tool
-undp_search_portfolio_approach = create_retriever_tool(retriever_portfolio, 
-                                         tool_name_portfolio, 
-                                         tool_description_prortfolio)
+                                   top_k=35)
 
 
+class SearchInput(BaseModel):
+    query: str = Field(description="A query string to be enhanced and processed.")
 
-# Initialize AzureChatOpenAI models
-# openai_model_000 = AzureChatOpenAI(
-#     openai_api_version=azure_openai_api_version,
-#     azure_deployment=azure_openai_deployment_name,
-#     temperature=0,
-# )
+def processed_search(original_query: str, query_result: list) -> str:
+    # Define the prompt template with the query
+#     prompt_result = f"""
+#         Take the following query Results:\n\m
+        
+#         {query_result}\n\m
+        
+#         Each Result is followed by the reference document, indicated by the following pattern: 'Document Name: [Reference Document.docx]'.\n\n 
+        
+#         Now go over each of the Results, and keep those Results that are relevant to the following query.\n\n 
 
-# openai_model_025 = AzureChatOpenAI(
-#     openai_api_version=azure_openai_api_version,
-#     azure_deployment=azure_openai_deployment_name,
-#     temperature=0.25,
-# )
+#         {original_query}\n\n 
+        
+#         Output Processing Instructions:\n 
+#         - Retain ALL information from each of the retained Results in your output.\n 
+#         - Present the retained Results in a systematic and organized manner.\n 
+#         - Present the results in plain text, do not use markdown.\n 
+#         - Always reference the Document Name of each retained result in brackets, for instance [Report_Cited.docx].\n 
+#         - List each reference separately [document_reference.docx][resultworkbook.xlsx].\n 
+#         """
+#     message = HumanMessage(content=prompt_result)
+#     response = llm.invoke([message])
+#     processed_response = response.content
+    result = str(query_result) + "\n\nIf you use the above results in the Final Answer always include the accompanying source Document Name, or sourcepage, in square brackets immediately after. So if you for instance read 'Document Name: [reference_document.pdf#page=40]' or 'sourcepage': 'reference_document.pdf#page=40' it becomes [reference_document.pdf#page=40]. Always list each referenced document separately in its own square brackets, so two relevant references in a row will be [Report outline.docx][Financial Results Q3.pdf#page=21]. Always list sources next to their context, never seperately."
+    return result
 
+# Wrapping the first retriever (project documents) into a function
+def search_undp_portfolio_apporoach(query: str) -> str:
+    search_results = retriever_portfolio.invoke(query)
+    processed_output = processed_search(query, search_results)  # Assuming `processed_search` is defined similarly
+    return processed_output
 
-
-agent_tools = []
-
-# Assuming undp_search_prodocs and undp_search_progress are defined as shown previously
-agent_tools.append(undp_search_portfolio_approach)
-
-# # Initialize Azure AI Search Retriever
-# retriever_indicator = AzureAISearchRetriever(
-#     content_key="content",
-#     service_name=azure_search_service,
-#     index_name="index-csv",
-#     api_key=azure_search_key,
-#     top_k=5
-# )
-
-react_prompt = """
-Respond to the human as helpfully and accurately as possible. You have access to the following tools:
-
-{tools}
-
-Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
-
-Valid "action" values: "Final Answer" or {tool_names}
-
-Provide only ONE action per $JSON_BLOB, as shown:
-
-```
-{{
-  "action": $TOOL_NAME,
-  "action_input": $INPUT
-}}
-```
-
-Follow this format:
-
-Use the following format:
-
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
-
-Begin!
-
-Question: {input}
-Thought: {agent_scratchpad}
-Begin! Reminder to ALWAYS respond with a valid $JSON_BLOB of a single action. Use tools if necessary. 
-Maintain original references to documents in Final Answer [reference_document_name.docx], and provide separate references for each, e.g., [word_document.docx][Spread Sheet 2114.xlsx].
-"""
-
-input_variables=['agent_scratchpad', 'input', 'tool_names', 'tools'] 
-input_types={'chat_history': typing.List[typing.Union[
-    AIMessage, 
-    HumanMessage, 
-    ChatMessage, 
-    SystemMessage, 
-    FunctionMessage, 
-    ToolMessage]]}
-
-
-messages=[
-    SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=['tool_names', 'tools'], template=react_prompt)), 
-    MessagesPlaceholder(variable_name='chat_history', optional=True), 
-    HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=['agent_scratchpad', 'input'], 
-                                                     template='{input}\n\n{agent_scratchpad}\n (reminder to respond in a JSON blob no matter what)'))]
-agent_template = ChatPromptTemplate(messages=messages, input_variables=input_variables, input_types=input_types)
-
-
-llm_with_tools = llm.bind_tools(agent_tools)
-
-# Create an agent with its LLM and overall structure
-agent = (
-    {
-        "input": lambda x: x["input"],
-        "agent_scratchpad": lambda x: format_to_openai_tool_messages(
-            x["intermediate_steps"]
-        ),
-        "chat_history": lambda x: x["chat_history"], 
-        "tools": lambda x: x["tools"],
-        "tool_names": lambda x: [tool.name for tool in x["tools"]],
-    }
-    | agent_template
-    | llm_with_tools
-    | OpenAIToolsAgentOutputParser()
+# Creating the StructuredTool for project documents
+undp_search_portfolio_approach_tool = StructuredTool.from_function(
+    func=search_undp_portfolio_apporoach,
+    name="search_undp_portfolio_approach_knowledge_base",
+    description="Searches and returns excerpts from UNDP's Potfolio Approach knowledge base. Useful for answering questions about the Portfolio Approach and related methods.",
+    args_schema=SearchInput,
+    return_direct=False
 )
 
-agent_executor = AgentExecutor(agent=agent, tools=agent_tools, verbose=True, handle_parsing_errors=True)
+prompt = hub.pull("hwchase17/structured-chat-agent")
+
+# Load the tools and add them directly to the list
+tools = load_tools(["llm-math"], llm=llm)
+tools.append(undp_search_portfolio_approach_tool)
+
+# Construct the JSON agent
+agent = create_structured_chat_agent(llm, tools, prompt)
+
+# Create an agent executor by passing in the agent and tools
+agent_executor = AgentExecutor(
+    agent=agent, tools=tools, verbose=True, handle_parsing_errors=True
+)
+
+
+
 
 
 def react_agent(input_text, chat_history):
-    response = agent_executor.invoke({"input": input_text, "chat_history": chat_history, "tools": agent_tools})
-    print("-----RESPONSE----")
-    print(response)
+    response = agent_executor.invoke({"input": input_text, "chat_history": chat_history})
     return response["output"]
 
 
