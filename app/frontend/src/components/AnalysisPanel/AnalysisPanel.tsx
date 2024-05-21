@@ -18,20 +18,22 @@ interface Props {
     onActiveTabChanged: (tab: AnalysisPanelTabs) => void;
     activeCitation: string | undefined;
     citationHeight: string;
-    answer: ChatAppResponse;
+    // answer: ChatAppResponse;
 }
 
 const pivotItemDisabledStyle = { disabled: true, style: { color: "grey" } };
 
-export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeight, className, onActiveTabChanged }: Props) => {
-    const isDisabledThoughtProcessTab: boolean = !answer.choices[0].context.thoughts;
-    const isDisabledSupportingContentTab: boolean = !answer.choices[0].context.data_points;
+export const AnalysisPanel = ({ activeTab, activeCitation, citationHeight, className, onActiveTabChanged }: Props) => {
+    // const isDisabledThoughtProcessTab: boolean = !answer.choices[0].context.thoughts;
+    // const isDisabledSupportingContentTab: boolean = !answer.choices[0].context.data_points;
     const isDisabledCitationTab: boolean = !activeCitation;
     const [citation, setCitation] = useState("");
+
 
     const client = useLogin ? useMsal().instance : undefined;
 
     const fetchCitation = async () => {
+        console.log("fetchCitation");
         const token = client ? await getToken(client) : undefined;
         if (activeCitation) {
             // Get hash from the URL as it may contain #page=N
@@ -52,7 +54,7 @@ export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeigh
     };
     useEffect(() => {
         fetchCitation();
-    }, []);
+    }, [activeCitation]);
 
     const renderFileViewer = () => {
         if (!activeCitation) {
@@ -76,7 +78,7 @@ export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeigh
             selectedKey={activeTab}
             onLinkClick={pivotItem => pivotItem && onActiveTabChanged(pivotItem.props.itemKey! as AnalysisPanelTabs)}
         >
-            <PivotItem
+            {/* <PivotItem
                 itemKey={AnalysisPanelTabs.ThoughtProcessTab}
                 headerText="Thought process"
                 headerButtonProps={isDisabledThoughtProcessTab ? pivotItemDisabledStyle : undefined}
@@ -89,7 +91,7 @@ export const AnalysisPanel = ({ answer, activeTab, activeCitation, citationHeigh
                 headerButtonProps={isDisabledSupportingContentTab ? pivotItemDisabledStyle : undefined}
             >
                 <SupportingContent supportingContent={answer.choices[0].context.data_points} />
-            </PivotItem>
+            </PivotItem> */}
             <PivotItem
                 itemKey={AnalysisPanelTabs.CitationTab}
                 headerText="Citation"
