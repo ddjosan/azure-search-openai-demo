@@ -30,6 +30,11 @@ try:
     azure_search_service = os.environ['AZURE_SEARCH_SERVICE']
     azure_search_index = os.environ['AZURE_SEARCH_INDEX']
     azure_search_key = os.environ['AZURE_SEARCH_KEY']
+
+    openai_model = os.environ['OPENAI_MODEL']
+    openai_key = os.environ['OPENAI_KEY']
+    openai_organization = os.environ['OPENAI_ORGANIZATION']
+        
 except KeyError:
     azure_openai_api_version = ""
     azure_openai_endpoint = ""
