@@ -238,7 +238,6 @@ export function Component(): JSX.Element {
                         activeCitation={activeCitation}
                         onActiveTabChanged={x => onToggleTab(x)}
                         citationHeight="600px"
-                        answer={answer}
                         activeTab={activeAnalysisPanelTab}
                     />
                 )}
