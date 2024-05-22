@@ -259,6 +259,18 @@ tools = []
 
 prompt = hub.pull("hwchase17/structured-chat-agent")
 
+# Assuming prompt is your ChatPromptTemplate object
+existing_template = prompt.messages[0].prompt.template
+
+# Additional string to add
+additional_string = "\n\nNever return a JSON object as Final Answer, use markdown."
+
+# Modify the template
+new_template = existing_template + additional_string
+
+# Update the template attribute with the new template
+prompt.messages[0].prompt.template = new_template
+
 tools = load_tools(["llm-math"], llm=llm)
 tools.append(undp_search_project_documents_tool)
 tools.append(undp_search_progress_reports_tool)
