@@ -109,6 +109,18 @@ undp_search_portfolio_approach_tool = StructuredTool.from_function(
 
 prompt = hub.pull("hwchase17/structured-chat-agent")
 
+# Assuming prompt is your ChatPromptTemplate object
+existing_template = prompt.messages[0].prompt.template
+
+# Additional string to add
+additional_string = "\n\nNever return a JSON object as final answer, use markdown."
+
+# Modify the template
+new_template = existing_template + additional_string
+
+# Update the template attribute with the new template
+prompt.messages[0].prompt.template = new_template
+
 # Load the tools and add them directly to the list
 tools = load_tools(["llm-math"], llm=llm)
 tools.append(undp_search_portfolio_approach_tool)
