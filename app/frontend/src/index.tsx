@@ -5,13 +5,15 @@ import { initializeIcons } from "@fluentui/react";
 import { MsalProvider } from "@azure/msal-react";
 import { PublicClientApplication, EventType, AccountInfo } from "@azure/msal-browser";
 import { msalConfig, useLogin } from "./authConfig";
-
 import "./index.css";
 
 import Layout from "./pages/layout/Layout";
 import Chat from "./pages/chat/Chat";
+import Login from "./pages/login/Login";
+
 
 var layout;
+var login;
 if (useLogin) {
     var msalInstance = new PublicClientApplication(msalConfig);
 
@@ -34,19 +36,30 @@ if (useLogin) {
             <Layout />
         </MsalProvider>
     );
+    login = (
+        <MsalProvider instance={msalInstance}>
+            <Login />
+        </MsalProvider>
+    );  
 } else {
     layout = <Layout />;
+    login = <Login />;
 }
 
 initializeIcons();
 
 const router = createHashRouter([
     {
+        path: "/login",
+        element: login
+    },
+    {
         path: "/",
         element: layout,
         children: [
+
             {
-                index: true,
+                path: "",
                 element: <Chat />
             },
             {
@@ -58,7 +71,8 @@ const router = createHashRouter([
                 lazy: () => import("./pages/NoPage")
             }
         ]
-    }
+    },
+   
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
