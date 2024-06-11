@@ -11,7 +11,6 @@ import Layout from "./pages/layout/Layout";
 import Chat from "./pages/chat/Chat";
 import Login from "./pages/login/Login";
 
-
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     let location = useLocation();
     const { instance } = useMsal();
@@ -20,7 +19,7 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     if (!isLoggedIn) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
-  
+
     return children;
 };
 
@@ -54,7 +53,7 @@ if (useLogin) {
         <MsalProvider instance={msalInstance}>
             <Login />
         </MsalProvider>
-    );  
+    );
 } else {
     layout = <Layout />;
     login = <Login />;
@@ -71,7 +70,6 @@ const router = createHashRouter([
         path: "/",
         element: layout,
         children: [
-
             {
                 path: "",
                 element: <Chat />
@@ -85,8 +83,7 @@ const router = createHashRouter([
                 lazy: () => import("./pages/NoPage")
             }
         ]
-    },
-   
+    }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
