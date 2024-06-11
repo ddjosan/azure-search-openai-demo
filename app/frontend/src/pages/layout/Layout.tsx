@@ -1,4 +1,4 @@
-import { Outlet, NavLink, Link } from "react-router-dom";
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 
 import github from "../../assets/github.svg";
 import logo from "../../assets/logo.png";
@@ -6,11 +6,24 @@ import undplogo from "../../assets/undp-logo-blue.png"
 
 import styles from "./Layout.module.css";
 
-import { useLogin } from "../../authConfig";
+import { appServicesToken, useLogin } from "../../authConfig";
 
 import { LoginButton } from "../../components/LoginButton";
+import { useMsal } from "@azure/msal-react";
+import { useEffect } from "react";
 
 const Layout = () => {
+    const { instance } = useMsal();
+    const activeAccount = instance.getActiveAccount();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isLoggedIn = (activeAccount || appServicesToken) != null;
+        if (!isLoggedIn) {
+            navigate("/login");
+        }
+    }, [activeAccount, appServicesToken]);
+
     return (
         <div className={styles.layout}>
             <header className={styles.header} role={"banner"}>
@@ -37,7 +50,7 @@ const Layout = () => {
                             height={60}
                         />
                     </div>
-                    {useLogin && <LoginButton />}
+                    {/* {useLogin && <LoginButton />} */}
                 </div>
             </header>
 
