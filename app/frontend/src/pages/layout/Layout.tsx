@@ -1,6 +1,4 @@
-import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
-
-import github from "../../assets/github.svg";
+import { Outlet } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import undplogo from "../../assets/undp-logo-blue.png";
 
@@ -13,6 +11,7 @@ import { UserProfile } from "../../components/UserProfile";
 
 import { useMsal } from "@azure/msal-react";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Layout = () => {
     const { instance } = useMsal();
