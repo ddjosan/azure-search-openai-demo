@@ -1,16 +1,28 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, Navigate, RouterProvider, useLocation } from "react-router-dom";
 import { initializeIcons } from "@fluentui/react";
-import { MsalProvider } from "@azure/msal-react";
+import { MsalProvider, useMsal } from "@azure/msal-react";
 import { PublicClientApplication, EventType, AccountInfo } from "@azure/msal-browser";
-import { msalConfig, useLogin } from "./authConfig";
+import { appServicesToken, msalConfig, useLogin } from "./authConfig";
 import "./index.css";
 
 import Layout from "./pages/layout/Layout";
 import Chat from "./pages/chat/Chat";
 import Login from "./pages/login/Login";
 
+
+const RequireAuth = ({ children }: { children: React.ReactNode }) => {
+    let location = useLocation();
+    const { instance } = useMsal();
+    const activeAccount = instance.getActiveAccount();
+    const isLoggedIn = (activeAccount || appServicesToken) != null;
+    if (!isLoggedIn) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+  
+    return children;
+};
 
 var layout;
 var login;
@@ -33,7 +45,9 @@ if (useLogin) {
 
     layout = (
         <MsalProvider instance={msalInstance}>
-            <Layout />
+            <RequireAuth>
+                <Layout />
+            </RequireAuth>
         </MsalProvider>
     );
     login = (
