@@ -130,7 +130,7 @@ agent = create_structured_chat_agent(llm, tools, prompt)
 
 # Create an agent executor by passing in the agent and tools
 agent_executor = AgentExecutor(
-    agent=agent, tools=tools, verbose=True, handle_parsing_errors=True
+    agent=agent, tools=tools, verbose=False, handle_parsing_errors=True
 )
 
 
