@@ -68,12 +68,17 @@ if ($env:USE_FEATURE_INT_VECTORIZATION) {
 }
 
 $cwd = (Get-Location)
-$dataArg = "`"$cwd/data/UNDP-RBAP-System-Change-A-Guidebook-for-Adopting-Portfolio-Approaches-2022.pdf`""
+$dataArg = "`"$cwd/data/Steps/*`""
+
+$azureSearchIndex = $env:AZURE_SEARCH_INDEX
+
+$indexArg = "--index ${azureSearchIndex}-steps"
+
 
 $argumentList = "./app/backend/prepdocs.py $dataArg --verbose " + `
 "--subscriptionid $env:AZURE_SUBSCRIPTION_ID " + `
 "--storageaccount $env:AZURE_STORAGE_ACCOUNT --container $env:AZURE_STORAGE_CONTAINER --storageresourcegroup $env:AZURE_STORAGE_RESOURCE_GROUP " + `
-"--searchservice $env:AZURE_SEARCH_SERVICE --index $env:AZURE_SEARCH_INDEX " + `
+"--searchservice $env:AZURE_SEARCH_SERVICE $indexArg " + `
 "$searchAnalyzerNameArg $searchSecretNameArg " + `
 "--openaihost `"$env:OPENAI_HOST`" --openaimodelname `"$env:AZURE_OPENAI_EMB_MODEL_NAME`" $openaiDimensionsArg " + `
 "--openaiservice `"$env:AZURE_OPENAI_SERVICE`" --openaideployment `"$env:AZURE_OPENAI_EMB_DEPLOYMENT`" " + `
@@ -84,8 +89,7 @@ $argumentList = "./app/backend/prepdocs.py $dataArg --verbose " + `
 "$tenantArg $aclArg " + `
 "$disableVectorsArg $localPdfParserArg $localHtmlParserArg " + `
 "$keyVaultName " + `
-"$integratedVectorizationArg " +
-"--remove "
+"$integratedVectorizationArg "
 
 $argumentList
 
