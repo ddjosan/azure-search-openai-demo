@@ -6,9 +6,9 @@ import styles from "./Answer.module.css";
 
 import { BotAppResponse, getCitationFilePath } from "../../api";
 import { parseBotAnswerToHtml } from "./AnswerParser";
-import { parseAnswerToHtml} from "./AnswerParser";
+import { parseAnswerToHtml } from "./AnswerParser";
 import { AnswerIcon } from "./AnswerIcon";
-import Markdown from 'markdown-to-jsx'
+import Markdown from "markdown-to-jsx";
 
 interface Props {
     answer: BotAppResponse;
@@ -66,16 +66,13 @@ export const AnswerBot = ({
 
             <Stack.Item grow>
                 {/* <div className={styles.answerText} dangerouslySetInnerHTML={{ __html: sanitizedAnswerHtml }}></div> */}
-                    <Markdown>
-                        
-                        {sanitizedAnswerHtml}
-                        </Markdown>
+                <Markdown>{sanitizedAnswerHtml}</Markdown>
             </Stack.Item>
 
             {!!parsedAnswer.citations.length && (
                 <Stack.Item>
-                    <Stack tokens={{ childrenGap: 5 }} styles={{ root: { flexDirection: 'column' } }}>
-                        <span className={styles.citationLearnMore}>Citations:</span>
+                    <Stack tokens={{ childrenGap: 5 }} styles={{ root: { flexDirection: "column" } }}>
+                        <span className={styles.citationLearnMore}>Sources:</span>
                         {parsedAnswer.citations.map((x, i) => {
                             const path = getCitationFilePath(x);
                             return (

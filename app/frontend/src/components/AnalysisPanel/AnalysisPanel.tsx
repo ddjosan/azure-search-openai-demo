@@ -29,7 +29,6 @@ export const AnalysisPanel = ({ activeTab, activeCitation, citationHeight, class
     const isDisabledCitationTab: boolean = !activeCitation;
     const [citation, setCitation] = useState("");
 
-
     const client = useLogin ? useMsal().instance : undefined;
 
     const fetchCitation = async () => {
@@ -64,11 +63,11 @@ export const AnalysisPanel = ({ activeTab, activeCitation, citationHeight, class
         const fileExtension = activeCitation.split(".").pop()?.toLowerCase();
         switch (fileExtension) {
             case "png":
-                return <img src={citation} className={styles.citationImg} alt="Citation Image" />;
+                return <img src={citation} className={styles.citationImg} alt="Source Image" />;
             case "md":
                 return <MarkdownViewer src={activeCitation} />;
             default:
-                return <iframe title="Citation" src={citation} width="100%" height={citationHeight} />;
+                return <iframe title="Source" src={citation} width="100%" height={citationHeight} />;
         }
     };
 
@@ -94,7 +93,7 @@ export const AnalysisPanel = ({ activeTab, activeCitation, citationHeight, class
             </PivotItem> */}
             <PivotItem
                 itemKey={AnalysisPanelTabs.CitationTab}
-                headerText="Citation"
+                headerText="Source"
                 headerButtonProps={isDisabledCitationTab ? pivotItemDisabledStyle : undefined}
             >
                 {renderFileViewer()}
