@@ -12,7 +12,6 @@ import {
     chatApi,
     configApi,
     RetrievalMode,
-    ChatAppResponse,
     ChatAppResponseOrError,
     ChatAppRequest,
     BotAppResponse,
@@ -20,7 +19,7 @@ import {
     VectorFieldOptions,
     GPT4VInput
 } from "../../api";
-import { Answer, AnswerBot, AnswerError, AnswerLoading } from "../../components/Answer";
+import { AnswerBot, AnswerError, AnswerLoading } from "../../components/Answer";
 import { QuestionInput } from "../../components/QuestionInput";
 import { ExampleList } from "../../components/ExampleCustom";
 import { UserChatMessage } from "../../components/UserChatMessage";
@@ -52,6 +51,8 @@ const Chat = () => {
     const [useGroupsSecurityFilter, setUseGroupsSecurityFilter] = useState<boolean>(false);
     const [gpt4vInput, setGPT4VInput] = useState<GPT4VInput>(GPT4VInput.TextAndImages);
     const [useGPT4V, setUseGPT4V] = useState<boolean>(false);
+
+    const [chat_id, setChatID] = useState<string>((Math.floor(Math.random() * (5000 - 100 + 1)) + 100).toString());
 
     const lastQuestionRef = useRef<string>("");
     const chatMessageStreamEnd = useRef<HTMLDivElement | null>(null);
@@ -168,7 +169,8 @@ const Chat = () => {
                     }
                 },
                 // ChatAppProtocol: Client must pass on any session state received from the server
-                session_state: null
+                session_state: null,
+                chat_id: chat_id
             };
 
             const response = await chatApi(request, token);

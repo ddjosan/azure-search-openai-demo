@@ -64,7 +64,7 @@ from core.authentication import AuthenticationHelper
 from decorators import authenticated, authenticated_path
 from error import error_dict, error_response
 from langchain_core.messages import AIMessage, HumanMessage
-from custom_agent.react_agent_new import react_agent
+from custom_agent.react_agent_sql import react_agent
 
 from prepdocs import (
     clean_key_if_exists,
@@ -232,6 +232,10 @@ async def chat(auth_claims: Dict[str, Any]):
     context = request_json.get("context", {})
     context["auth_claims"] = auth_claims
 
+    chat_id = request_json.get("chat_id")
+
+    print(chat_id)
+
     try:
         history = []
         raw_history = request_json.get("messages", [])
@@ -242,7 +246,7 @@ async def chat(auth_claims: Dict[str, Any]):
             else:
                 history.extend([AIMessage(content=message["content"])])
 
-        response = react_agent(request_json["messages"][-1]["content"], history)
+        response = react_agent([HumanMessage(content=request_json["messages"][-1]["content"])], history, chat_id)
 
         return jsonify({"message" : response})
     except Exception as error:

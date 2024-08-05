@@ -78,11 +78,12 @@ export type ChatAppRequest = {
     context?: ChatAppRequestContext;
     stream?: boolean;
     session_state: any;
+    chat_id?: string;
 };
 
 export type BotAppResponse = {
     message: string;
-}
+};
 
 export type Config = {
     showGPT4VOptions: boolean;
