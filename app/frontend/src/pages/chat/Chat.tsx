@@ -32,6 +32,7 @@ import { VectorSettings } from "../../components/VectorSettings";
 import { useMsal } from "@azure/msal-react";
 import { TokenClaimsDisplay } from "../../components/TokenClaimsDisplay";
 import { GPT4VSettings } from "../../components/GPT4VSettings";
+import { ChatStyleSelector } from "../../components/ChatStyleSelector/ChatStyleSelector";
 
 const Chat = () => {
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
@@ -338,6 +339,7 @@ const Chat = () => {
                         <div className={styles.chatEmptyState}>
                             <h1 className={styles.chatEmptyStateTitle}>Chat with our data</h1>
                             <div className={styles.chatEmptyStateSubtitle}>Ask anything or try an example</div>
+                            <ChatStyleSelector />
                             <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
                         </div>
                     ) : (

@@ -1,0 +1,26 @@
+.customLabel {
+    font-size: 16px;
+    color: #718096;;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+.customRadioGroup {
+    padding: 4px;
+    border-radius: 4px;
+    background-color: #F4F7FE;
+}
+.customRadio {
+    display: inline-block;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    user-select: none;
+
+    div {
+        display: none;
+    }
+}
+.customRadio.selected {
+    background-color: #94BFFF;
+    color: white;
+}
