@@ -40,6 +40,23 @@
     margin-bottom: 10px;
 }
 
+.customRadio {
+    margin-top: 4px;
+    align-items: center;
+
+    div {
+        border: 1px solid black;
+        border-radius: 50%;
+        margin-right: 8px;
+
+        svg {
+            path {
+                fill: #94BFFF;
+            }
+        }
+    }
+}
+
 @media only screen and (max-height: 780px) {
     .chatEmptyState {
         padding-top: 0;

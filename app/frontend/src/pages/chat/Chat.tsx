@@ -32,7 +32,8 @@ import { VectorSettings } from "../../components/VectorSettings";
 import { useMsal } from "@azure/msal-react";
 import { TokenClaimsDisplay } from "../../components/TokenClaimsDisplay";
 import { GPT4VSettings } from "../../components/GPT4VSettings";
-import { ChatStyleSelector } from "../../components/ChatStyleSelector/ChatStyleSelector";
+import { RadioGroup, Radio, Field } from "@fluentui/react-components";
+import { Brush, Scale } from "lucide-react";
 
 const Chat = () => {
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(false);
@@ -264,6 +265,10 @@ const Chat = () => {
         makeApiRequest(example);
     };
 
+    const onCoversationStyleChange = (event: any) => {
+        console.log(`Selected: ${event.target.value}`);
+    }
+
     const fetchCitation = async (activeCitation: string) => {
         const token = client ? await getToken(client) : undefined;
         if (activeCitation) {
@@ -339,7 +344,6 @@ const Chat = () => {
                         <div className={styles.chatEmptyState}>
                             <h1 className={styles.chatEmptyStateTitle}>Chat with our data</h1>
                             <div className={styles.chatEmptyStateSubtitle}>Ask anything or try an example</div>
-                            <ChatStyleSelector />
                             <ExampleList onExampleClicked={onExampleClicked} useGPT4V={useGPT4V} />
                         </div>
                     ) : (
@@ -414,7 +418,13 @@ const Chat = () => {
                     onRenderFooterContent={() => <DefaultButton onClick={() => setIsConfigPanelOpen(false)}>Close</DefaultButton>}
                     isFooterAtBottom={true}
                 >
-                    <TextField
+                    <Field label="Choose a conversation style:" style={{marginTop:16}}>
+                        <RadioGroup onChange={onCoversationStyleChange} defaultValue={'creative'}>
+                            <Radio value="creative" label={<><Brush size={16} style={{marginRight:8}}/>Creative</>} className={styles.customRadio}/>
+                            <Radio value="balanced" label={<><Scale size={16} style={{marginRight:8}}/>Balanced</>} className={styles.customRadio}/>
+                        </RadioGroup>
+                    </Field>
+                    {/* <TextField
                         className={styles.chatSettingsSeparator}
                         defaultValue={promptTemplate}
                         label="Override prompt template"
@@ -530,7 +540,7 @@ const Chat = () => {
                         label="Stream chat completion responses"
                         onChange={onShouldStreamChange}
                     />
-                    {useLogin && <TokenClaimsDisplay />}
+                    {useLogin && <TokenClaimsDisplay />} */}
                 </Panel>
             </div>
         </div>
