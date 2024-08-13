@@ -229,11 +229,12 @@ memory = MemorySaver()
 #print(memory)
 
 # Construct the JSON agent
-agent_executor_mixed = create_react_agent(llm, tools_extended, state_modifier=system_message, checkpointer=memory)
+agent_executor_mixed = create_react_agent(llm, tools_extended, state_modifier=system_message, checkpointer=MemorySaver())
 
 def react_agent(input_text, chat_history, chat_id):
 
     config = {"recursion_limit": 50, "configurable": {"thread_id": chat_id}}
+    #config = {"configurable": {"thread_id": "1"}}
 
     for s in agent_executor_mixed.stream(
         {"messages": input_text}, config
