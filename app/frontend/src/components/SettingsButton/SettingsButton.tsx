@@ -11,7 +11,7 @@ interface Props {
 export const SettingsButton = ({ className, onClick }: Props) => {
     return (
         <div className={`${styles.container} ${className ?? ""}`}>
-            <Tooltip content="Developer Settings" relationship="description">
+            <Tooltip content="Conversation Type" relationship="description">
                 <Button icon={<Settings24Regular />} onClick={onClick}/>
             </Tooltip>
         </div>
