@@ -19,6 +19,7 @@
     "@fluentui/react-icons": "^2.0.221",
     "@react-spring/web": "^9.7.3",
     "dompurify": "^3.0.6",
+    "lucide-react": "^0.427.0",
     "markdown-to-jsx": "^7.4.7",
     "marked": "^9.1.6",
     "ndjson-readablestream": "^1.0.7",
