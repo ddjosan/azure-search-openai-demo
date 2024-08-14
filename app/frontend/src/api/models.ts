@@ -79,6 +79,7 @@ export type ChatAppRequest = {
     stream?: boolean;
     session_state: any;
     chat_id?: string;
+    conversation_style?: string;
 };
 
 export type BotAppResponse = {

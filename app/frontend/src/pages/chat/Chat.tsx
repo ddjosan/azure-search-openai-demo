@@ -133,7 +133,6 @@ const Chat = () => {
     const client = useLogin ? useMsal().instance : undefined;
 
     const makeApiRequest = async (question: string) => {
-        
         lastQuestionRef.current = question;
 
         error && setError(undefined);
@@ -173,7 +172,8 @@ const Chat = () => {
                 },
                 // ChatAppProtocol: Client must pass on any session state received from the server
                 session_state: null,
-                chat_id: chat_id
+                chat_id: chat_id,
+                conversation_style: conversationStyle
             };
 
             const response = await chatApi(request, token);
@@ -268,7 +268,7 @@ const Chat = () => {
 
     const onCoversationStyleChange = (event: any) => {
         setConversationStyle(event.target.value);
-    }
+    };
 
     const fetchCitation = async (activeCitation: string) => {
         const token = client ? await getToken(client) : undefined;
@@ -419,16 +419,37 @@ const Chat = () => {
                     onRenderFooterContent={() => <DefaultButton onClick={() => setIsConfigPanelOpen(false)}>Close</DefaultButton>}
                     isFooterAtBottom={true}
                 >
-                    <Field style={{marginTop:16}} className={lastQuestionRef.current=='' ? '' : styles.disabledField}>
-                        <RadioGroup onChange={onCoversationStyleChange} defaultValue={conversationStyle} disabled={lastQuestionRef.current!=''}>
-                            <Radio 
-                                value="creative" 
-                                label={<><Brush size={16} style={{marginRight:8}}/>Creative <p className={styles.radioDescription}>Uses semantic databases and is designed to be more creative in text generation. It likely leverages natural language understanding to provide more contextually rich and nuanced responses. This type of conversation is ideal for tasks that require a more conversational and flexible approach, such as talking points, content creation, or personal assistance.</p></>} 
+                    <Field style={{ marginTop: 16 }} className={lastQuestionRef.current == "" ? "" : styles.disabledField}>
+                        <RadioGroup onChange={onCoversationStyleChange} defaultValue={conversationStyle} disabled={lastQuestionRef.current != ""}>
+                            <Radio
+                                value="creative"
+                                label={
+                                    <>
+                                        <Brush size={16} style={{ marginRight: 8 }} />
+                                        Creative{" "}
+                                        <p className={styles.radioDescription}>
+                                            Uses semantic databases and is designed to be more creative in text generation. It likely leverages natural language
+                                            understanding to provide more contextually rich and nuanced responses. This type of conversation is ideal for tasks
+                                            that require a more conversational and flexible approach, such as talking points, content creation, or personal
+                                            assistance.
+                                        </p>
+                                    </>
+                                }
                                 className={`${styles.customRadio} ${conversationStyle === "creative" ? styles.selected : ""}`}
                             />
-                            <Radio 
-                                value="balanced" 
-                                label={<><Scale size={16} style={{marginRight:8}}/>Balanced <p className={styles.radioDescription}>It is more structured and focused on retrieving and reporting information from a database. It’s designed for accuracy and consistency, making it suitable for tasks where precision and factual correctness are paramount, such as generating reports, providing factual answers, or handling tasks where specific data retrieval is required.</p></>} 
+                            <Radio
+                                value="balanced"
+                                label={
+                                    <>
+                                        <Scale size={16} style={{ marginRight: 8 }} />
+                                        Balanced{" "}
+                                        <p className={styles.radioDescription}>
+                                            It is more structured and focused on retrieving and reporting information from a database. It’s designed for
+                                            accuracy and consistency, making it suitable for tasks where precision and factual correctness are paramount, such
+                                            as generating reports, providing factual answers, or handling tasks where specific data retrieval is required.
+                                        </p>
+                                    </>
+                                }
                                 className={`${styles.customRadio} ${conversationStyle === "balanced" ? styles.selected : ""}`}
                             />
                         </RadioGroup>

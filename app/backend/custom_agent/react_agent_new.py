@@ -36,7 +36,7 @@ try:
     azure_search_key = os.environ['AZURE_SEARCH_KEY']
 
     openai_model = os.environ['OPENAI_MODEL']
-    openai_key = os.environ['OPENAI_KEY']
+    openai_key = os.environ['OPENAI_API_KEY']
     openai_organization = os.environ['OPENAI_ORGANIZATION']    
 
 except KeyError:

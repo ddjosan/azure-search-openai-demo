@@ -64,7 +64,9 @@ from core.authentication import AuthenticationHelper
 from decorators import authenticated, authenticated_path
 from error import error_dict, error_response
 from langchain_core.messages import AIMessage, HumanMessage
-from custom_agent.react_agent_sql import react_agent
+from custom_agent.react_agent_sql import react_agent as react_balanced
+from custom_agent.react_agent_new import react_agent as react_creative
+
 
 from prepdocs import (
     clean_key_if_exists,
@@ -233,6 +235,7 @@ async def chat(auth_claims: Dict[str, Any]):
     context["auth_claims"] = auth_claims
 
     chat_id = request_json.get("chat_id")
+    conversation_style = request_json.get("conversation_style")
 
     print(chat_id)
 
@@ -246,7 +249,13 @@ async def chat(auth_claims: Dict[str, Any]):
             else:
                 history.extend([AIMessage(content=message["content"])])
 
-        response = react_agent([HumanMessage(content=request_json["messages"][-1]["content"])], history, chat_id)
+        response = ""        
+
+        print(conversation_style)
+        if conversation_style == 'balanced':
+            response = react_balanced([HumanMessage(content=request_json["messages"][-1]["content"])], history, chat_id)
+        else:
+            response = react_creative([HumanMessage(content=request_json["messages"][-1]["content"])], history)
 
         return jsonify({"message" : response})
     except Exception as error:
