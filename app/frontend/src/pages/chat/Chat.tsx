@@ -53,7 +53,7 @@ const Chat = () => {
     const [useGroupsSecurityFilter, setUseGroupsSecurityFilter] = useState<boolean>(false);
     const [gpt4vInput, setGPT4VInput] = useState<GPT4VInput>(GPT4VInput.TextAndImages);
     const [useGPT4V, setUseGPT4V] = useState<boolean>(false);
-
+    const [conversationStyle, setConversationStyle] = useState("creative");
     const [chat_id, setChatID] = useState<string>((Math.floor(Math.random() * (5000 - 100 + 1)) + 100).toString());
 
     const lastQuestionRef = useRef<string>("");
@@ -133,6 +133,7 @@ const Chat = () => {
     const client = useLogin ? useMsal().instance : undefined;
 
     const makeApiRequest = async (question: string) => {
+        
         lastQuestionRef.current = question;
 
         error && setError(undefined);
@@ -266,7 +267,7 @@ const Chat = () => {
     };
 
     const onCoversationStyleChange = (event: any) => {
-        console.log(`Selected: ${event.target.value}`);
+        setConversationStyle(event.target.value);
     }
 
     const fetchCitation = async (activeCitation: string) => {
@@ -410,7 +411,7 @@ const Chat = () => {
                 )}
 
                 <Panel
-                    headerText="Configure answer generation"
+                    headerText="Conversation Type"
                     isOpen={isConfigPanelOpen}
                     isBlocking={false}
                     onDismiss={() => setIsConfigPanelOpen(false)}
@@ -418,10 +419,18 @@ const Chat = () => {
                     onRenderFooterContent={() => <DefaultButton onClick={() => setIsConfigPanelOpen(false)}>Close</DefaultButton>}
                     isFooterAtBottom={true}
                 >
-                    <Field label="Choose a conversation style:" style={{marginTop:16}}>
-                        <RadioGroup onChange={onCoversationStyleChange} defaultValue={'creative'}>
-                            <Radio value="creative" label={<><Brush size={16} style={{marginRight:8}}/>Creative</>} className={styles.customRadio}/>
-                            <Radio value="balanced" label={<><Scale size={16} style={{marginRight:8}}/>Balanced</>} className={styles.customRadio}/>
+                    <Field style={{marginTop:16}} className={lastQuestionRef.current=='' ? '' : styles.disabledField}>
+                        <RadioGroup onChange={onCoversationStyleChange} defaultValue={conversationStyle} disabled={lastQuestionRef.current!=''}>
+                            <Radio 
+                                value="creative" 
+                                label={<><Brush size={16} style={{marginRight:8}}/>Creative <p className={styles.radioDescription}>Uses semantic databases and is designed to be more creative in text generation. It likely leverages natural language understanding to provide more contextually rich and nuanced responses. This type of conversation is ideal for tasks that require a more conversational and flexible approach, such as talking points, content creation, or personal assistance.</p></>} 
+                                className={`${styles.customRadio} ${conversationStyle === "creative" ? styles.selected : ""}`}
+                            />
+                            <Radio 
+                                value="balanced" 
+                                label={<><Scale size={16} style={{marginRight:8}}/>Balanced <p className={styles.radioDescription}>It is more structured and focused on retrieving and reporting information from a database. It’s designed for accuracy and consistency, making it suitable for tasks where precision and factual correctness are paramount, such as generating reports, providing factual answers, or handling tasks where specific data retrieval is required.</p></>} 
+                                className={`${styles.customRadio} ${conversationStyle === "balanced" ? styles.selected : ""}`}
+                            />
                         </RadioGroup>
                     </Field>
                     {/* <TextField
