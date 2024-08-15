@@ -10,7 +10,7 @@ export const LoginButton = () => {
     const activeAccount = instance.getActiveAccount();
     const isLoggedIn = (activeAccount || appServicesToken) != null;
 
-    const handleLoginPopup = async() => {
+    const handleLoginPopup = async () => {
         /**
          * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page
          * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
@@ -21,8 +21,11 @@ export const LoginButton = () => {
                 ...loginRequest,
                 redirectUri: getRedirectUri()
             })
+            .then(response => {
+                window.location.href = "/";
+            })
             .catch(error => {
-               console.log(error);
+                console.log(error);
             });
     };
     const handleLogoutPopup = () => {
