@@ -204,7 +204,7 @@ def enhanced_and_processed_search(query: str) -> str:
 undp_search_impact_indicator = StructuredTool.from_function(
     func=enhanced_and_processed_search,
     name="undp_serbia_project_activity_and_result_search",
-    description="A tool for finding key project activties, impacts, and results, categorized by area of focus, beneficiaries, responsible project mangers, and other organziational metadata.",
+    description="A tool for finding key project activities, impacts, and results, categorized by area of focus, beneficiaries, responsible project mangers, and other organziational metadata.",
     args_schema=SearchInput,
     return_direct=False
 )

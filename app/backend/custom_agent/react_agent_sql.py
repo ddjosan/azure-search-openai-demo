@@ -55,7 +55,7 @@ except KeyError:
     raise
 
 # Create the SQLite database
-engine = create_engine('sqlite:///datasource/undp_serbia_companion.db')
+engine = create_engine('sqlite:///datasource/undp_serbia_companion_new5.db')
 
 db = SQLDatabase(engine)
 
@@ -69,6 +69,43 @@ llm = ChatOpenAI(
 )
 
 
+# SQL_PREFIX = """
+# You are an agent designed to interact with a SQL database.
+# Given an input question, create a syntactically correct SQLite query to run, then look at the results and return the answer.
+# Order the results by a relevant column to highlight the most interesting examples.
+# Never query for all columns from a table; only request relevant columns based on the question.
+# Always return all results of the query.
+# Avoid returning IDs.
+# You have tools to interact with the database; use only these tools and the information they return to construct your answer.
+# Double-check your query before execution. If an error occurs, rewrite the query and try again.
+
+# DO NOT perform any DML statements (INSERT, UPDATE, DELETE, DROP, etc.).
+
+# If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool, but proper noun use ONLY for database search!
+# To answer a user query, ALWAYS first try finding the answer using SQL database tool, 
+# and only after use tools: [undp_search_project_documents, undp_serbia_project_activity_and_result_search] for additional information.
+
+# In case that there are no data in SQL Database, use tools : [search_undp_project_documents, undp_serbia_project_activity_and_result_search] to generate answer.
+
+# If you need to answer some question about some location in Serbia use tools: [search_undp_project_documents, undp_serbia_project_activity_and_result_search] to generate answer.
+
+# To answer a user query:
+# 1. ALWAYS start by examining the database tables to understand what you can query.
+# 2. Query the schema of the most relevant tables.
+
+# Here are some examples of user inputs and their corresponding SQL queries:
+
+
+# User input: Can you list me all projects?
+# SQL query: SELECT projectName FROM projectDocuments;
+
+# User input: Describe cpd output 2.2 results achieved in 2023
+# SQL Query: SELECT * from resultsData r where r.qunatumID in (select quantumID from countryProgrammeDocument where cpdOutputNumber='CPD Output 2.2.' or cpdOutput like '%output 2.2%') and r.progressReportID in ( select progressReportID from progressReports where year='2023')
+
+# User input: Can you give me results achieved in 2023
+# SQL Query: Select * from resultsData where progresReportID in ( select progressReportID from progressReports where year='2023')
+# """
+
 SQL_PREFIX = """
 You are an agent designed to interact with a SQL database.
 Given an input question, create a syntactically correct SQLite query to run, then look at the results and return the answer.
@@ -81,29 +118,58 @@ Double-check your query before execution. If an error occurs, rewrite the query 
 
 DO NOT perform any DML statements (INSERT, UPDATE, DELETE, DROP, etc.).
 
-If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool, but proper noun use ONLY for database search!
-To answer a user query, ALWAYS first try finding the answer using SQL database tool, 
-and only after use tools: [undp_search_project_documents, undp_serbia_project_activity_and_result_search] for additional information.
+To answer a user query, ALWAYS first try finding the answer using SQL database tool sql_db_query,
+and only after use tools: [search_undp_project_documents, undp_serbia_project_activity_and_result_search] for additional information.
 
-In case that there are no data in SQL Database, use tools : [search_undp_project_documents, undp_serbia_project_activity_and_result_search] to generate answer.
+In case that there are no relavant data in SQL Database, ALWAYS use tools : [search_undp_project_documents, undp_serbia_project_activity_and_result_search] to generate answer.
 
-If you need to answer some question about some location in Serbia use tools: [search_undp_project_documents, undp_serbia_project_activity_and_result_search] to generate answer.
+If you need to answer some question about some location in Serbia use tools: [undp_serbia_project_activity_and_result_search] to generate answer.
 
 To answer a user query:
 1. ALWAYS start by examining the database tables to understand what you can query.
 2. Query the schema of the most relevant tables.
 
+
 Here are some examples of user inputs and their corresponding SQL queries:
 
 
 User input: Can you list me all projects?
-SQL query: SELECT projectName FROM projectDocuments;
+SQL query: SELECT projectName FROM projectsData;
 
 User input: Describe cpd output 2.2 results achieved in 2023
-SQL Query: SELECT * from resultsData r where r.qunatumID in (select quantumID from countryProgrammeDocument where cpdOutputNumber='CPD Output 2.2.' or cpdOutput like '%output 2.2%') and r.progressReportID in ( select progressReportID from progressReports where year='2023')
+SQL Query: SELECT * from resultsData r where r.projectID in (select projectID from cpdData where cpdOutputNumber='CPD Output 2.2' or cpdOutputNumber like '%2.2%') and r.year='2023'
+
+User input: Describe output 2.2 results achieved in 2023
+SQL Query: SELECT * from resultsData r where r.projectID in (select projectID from cpdData where cpdOutputNumber='CPD Output 2.2' or cpdOutputNumber like '%2.2%') and r.year='2023'
+
+User input: Describe cpd output 2.2 results achieved in 2023
+SQL Query: SELECT * from resultsData r where r.projectID in (select projectID from cpdData where cpdOutputNumber='CPD Output 2.2' or cpdOutputNumber like '%2.2%') and r.year='2023'
+
+User input: Describe suboutput 2.2.1 results achieved in 2023
+SQL Query: SELECT * from resultsData r where r.projectID in (select projectID from cpdData where cpdSubOutputNumber='CPD Sub Output 2.2.1' or cpdSubOutputNumber like '%2.2.1%') and r.year='2023'
+
 
 User input: Can you give me results achieved in 2023
-SQL Query: Select * from resultsData where progresReportID in ( select progressReportID from progressReports where year='2023')
+SQL Query: Select * from resultsData where year='2023'
+
+User input: Can you list me all the UNDP partners?
+SQL Query: Select distinct(nationalPartner) from projectsData
+
+User input: Can you list me all donors?
+SQL Query: Select distinct(donor) from projectsData
+
+User input: Can you list me all grants?
+SQL Query: Select * from programmaticAgreementsData where programmaticAgreementType='Grant'
+
+User input: Can you list me all performance based payments?
+SQL Query: Select * from programmaticAgreementsData where programmaticAgreementType='Performance Based Payment'
+
+User input: Can you list me all innovation award agreements?
+SQL Query: Select * from programmaticAgreementsData where programmaticAgreementType='Innovation Award Agreement'
+
+User input: Can you list me all responsible party agreements?
+SQL Query: Select * from programmaticAgreementsData where programmaticAgreementType='Responsible Party Agreement'
+
 """
 
 system_message = SystemMessage(content=SQL_PREFIX)
