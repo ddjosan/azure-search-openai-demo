@@ -1,22 +1,31 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, NavLink, Link } from "react-router-dom";
+
+import github from "../../assets/github.svg";
 import logo from "../../assets/logo.png";
-import undplogo from "../../assets/undp-logo-blue.png"
+import undplogo from "../../assets/undp-logo-blue.png";
 
 import styles from "./Layout.module.css";
 
+import { useLogin } from "../../authConfig";
+
+import { LoginButton } from "../../components/LoginButton";
+import { UserProfile } from "../../components/UserProfile";
+
+import { useMsal } from "@azure/msal-react";
+import { appServicesToken } from "../../authConfig";
+
 const Layout = () => {
+    const { instance } = useMsal();
+    const activeAccount = instance.getActiveAccount();
+    const isLoggedIn = (activeAccount || appServicesToken) != null;
 
     return (
         <div className={styles.layout}>
             <header className={styles.header} role={"banner"}>
                 <div className={styles.headerContainer}>
                     <div className={styles.headerLogoWrapper}>
-                        <img
-                            src={logo}
-                            alt="UNDP GPT RS"
-                            width="52px"
-                            height="52px"
-                        />
+                        {/* <img src={logo} alt="UNDP GPT RS" width="52px" height="52px" /> */}
+                        <img src={undplogo} alt="UNDP Logo" height={60} />
                         <div className={styles.headerTitleContainer}>
                             <span>UNDP Serbia</span>
                             <ul className={styles.headerDescription}>
@@ -26,11 +35,14 @@ const Layout = () => {
                         </div>
                     </div>
                     <div>
-                        <img
+                        {
+                            <UserProfile />
+                            /* <img
                             src={undplogo}
                             alt="UNDP Logo"
                             height={60}
-                        />
+                        /> */
+                        }
                     </div>
                     {/* {useLogin && <LoginButton />} */}
                 </div>
