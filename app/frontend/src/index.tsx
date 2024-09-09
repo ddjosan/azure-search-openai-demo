@@ -23,18 +23,6 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     return children;
 };
 
-const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-    let location = useLocation();
-    const { instance } = useMsal();
-    const activeAccount = instance.getActiveAccount();
-    const isLoggedIn = (activeAccount || appServicesToken) != null;
-    if (!isLoggedIn) {
-        return <Navigate to="/login" state={{ from: location }} replace />;
-    }
-  
-    return children;
-};
-
 var layout;
 var login;
 if (useLogin) {
@@ -59,6 +47,11 @@ if (useLogin) {
             <RequireAuth>
                 <Layout />
             </RequireAuth>
+        </MsalProvider>
+    );
+    login = (
+        <MsalProvider instance={msalInstance}>
+            <Login />
         </MsalProvider>
     );
     login = (
